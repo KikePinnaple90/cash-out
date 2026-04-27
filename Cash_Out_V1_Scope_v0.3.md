@@ -26,10 +26,9 @@
 
 ## 1. Executive Summary
 
-> 💡 **In a nutshell:** Cash Out lets Punters settle pending Bets early — at any point between Bet placement and event settlement — at a price calculated from current market odds. The feature is platform-agnostic and ships across three surfaces: a customer-facing widget, a back-office configuration tool, and unified liability reporting for Trading.
+> 💡 **In a nutshell:** Cash Out lets Punters settle pending Bets early — at any point between Bet placement and event settlement — at a price calculated from current market odds. The feature is platform-agnostic and ships across three surfaces: a customer-facing widget, a back-office configuration tool, and liability reporting for Trading.
 
-The initiative delivers Cash Out as a complete feature: a customer-facing widget on the sportsbook web site, a back-office configuration tool (templates, sport / league enablement, customer-group rules), and unified trading liability reporting that updates in real time on every cashed-out Bet. The cashout offer reuses the existing decimal-odds and market-margin pricing logic — no new settlement or wallet rules are introduced. The same configuration, the same formula, and the same reporting flow apply to every Bet regardless of when it was placed or when it is cashed out. **V1 covers Moneyline 2-way and 3-way, Spread, and Totals.** Handling for line moves on Spread / Totals is a named open item (§6.2) — Trading selects between current-line alt-pricing from the odds feed or suspending cashout when the main line has moved.
-
+The initiative delivers Cash Out as a complete feature: a customer-facing widget on the sportsbook web site, a back-office configuration tool (templates, sport / league enablement, customer-group rules), and trading liability reporting that updates in real time on every cashed-out Bet. The cashout offer reuses the existing decimal-odds and market-margin pricing logic — no new settlement or wallet rules are introduced. The same configuration, the same formula, and the same reporting flow apply to every Bet regardless of when it was placed or when it is cashed out. 
 **Expected outcome:**
 
 - 📈 **Handle lift on enabled sports / leagues** — driven by retention of pending wagers and reduced abandonment _(baseline TBD — Analytics to provide)_
@@ -44,7 +43,7 @@ The initiative delivers Cash Out as a complete feature: a customer-facing widget
 
 #### 🙋 Customer Problem
 
-Punters with pending Bets currently have no way to lock in a partial return before the event settles. They watch a winning position drift back to neutral, or absorb the full loss on a losing position, with no exit. Customer feedback consistently flags Cash Out as the single most-requested missing feature, and Punters churning to competitors cite "couldn't cash out" as a top-3 reason. The friction applies equally to Bets placed long before the event and Bets placed during the event — Punters expect early-settlement to be available throughout the entire window between placement and grading, across every standard market type they wagered on.
+Punters with pending Bets currently have no way to lock in a return before the event settles. They watch a winning position drift back to neutral, or absorb the full loss on a losing position, with no exit. Customer feedback consistently flags Cash Out as the single most-requested missing feature, and Punters churning to competitors cite "couldn't cash out" as a top-3 reason. The friction applies equally to Bets placed long before the event and Bets placed during the event — Punters expect early-settlement to be available throughout the entire window between placement and grading, across every standard market type they wagered on.
 
 #### 🏢 Business Problem
 
@@ -57,7 +56,7 @@ Three intersecting drivers:
 
 #### 🔍 Evidence
 
-- **Competitive scan** — every major regulated sportsbook offers Cash Out across Moneyline, Spread, and Totals. Several market it as a primary acquisition feature.
+- **Competitive scan** — every major regulated sportsbook offers Cash Out. Several market it as a primary acquisition feature.
 - **Customer signals** — Cash Out is the most-requested feature in support tickets and the betslip-feature feedback channel _(specific volume — Customer Support to confirm)_.
 - **Behavioural pattern** — pending Bets show measurable engagement decay between placement and settlement. Cashing-out converts that decay window into transaction value.
 
