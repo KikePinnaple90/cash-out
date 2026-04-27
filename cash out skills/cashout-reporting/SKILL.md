@@ -5,252 +5,330 @@ description: Implement, explain, or verify how cash out bets update liabilities 
 
 # Cash Out: Synergy and N-Game Liabilities Reporting
 
-When a bet is cashed out, the trading platforms must be updated in real time so traders can see correct liability information and act accordingly. Without this update, traders make decisions based on stale data — missing cashed-out bets means incorrect liabilities.
+When a bet is cashed out, the trading platforms must be updated in real time so traders see correct liability information. Without this, traders act on stale data and make incorrect hedging decisions.
 
 ---
 
 ## Routing rule — which platform gets updated
 
-The platform that receives the liability update depends solely on **when the bet was placed**, not when it is cashed out.
+The platform depends solely on **when the bet was placed**, not when it is cashed out.
 
 ```
-Bet placed PRE-MATCH  →  Synergy  (regardless of cashout timing)
-Bet placed LIVE       →  N-Game   (regardless of cashout timing)
+Bet placed PRE-MATCH  →  Synergy  (regardless of when cashout occurs)
+Bet placed LIVE       →  N-Game   (regardless of when cashout occurs)
 ```
 
-A pre-match bet cashed out during a live game still updates Synergy, not N-Game.
+A pre-match bet cashed out during a live game still updates **Synergy**.
+
+---
+
+## Shared formula: American to decimal odds
+
+Used in both Synergy and N-Game templates.
+
+```
+Decimal = IF(American > 0, (American / 100) + 1, (-100 / American) + 1)
+```
+
+Examples: -150 → 1.667 | +130 → 2.300 | +159 → 2.590
 
 ---
 
 ## Synergy
 
-### Report fields
+### Report columns
 
-Synergy reports show five columns: **Profit, Risk, Payout, Volume, Count**
+**Profit · Risk · Payout · Volume · Count**
 
-When a bet is cashed out, the following fields update: **Profit, Payout, Volume**. Risk and Count do not change.
-
-### How the fields update
-
-The cashout amount replaces the original potential payout. Profit recalculates for both selections based on the new payout. Volume follows.
-
-**Example — SF 49ers vs Green Bay Packers**
-
-Bet: $100 on SF @ -150 (decimal 1.667). Potential payout = $166.
-
-Before cashout:
-
-| Game | Profit | Risk | Payout | Volume | Count |
-|---|---|---|---|---|---|
-| San Francisco | -66 | 100 | 166 | 66 | 1 |
-| Green Bay Packers | 100 | | | | |
-
-Bet cashed out at **$84.00**:
-
-| Game | Profit | Risk | Payout | Volume | Count |
-|---|---|---|---|---|---|
-| San Francisco | **16** | 100 | **84** | **-16** | 1 |
-| Green Bay Packers | **16** | | | | |
-
-Changes:
-- Payout: 166 → 84 (cashout amount)
-- Profit SF: -66 → 16
-- Profit GB: 100 → 16
-- Volume: 66 → -16
-
-**The profit update applies to both selections** (winning and losing side of the market).
+When a bet is cashed out: **Payout, Profit, and Volume update** on both selections. Risk and Count do not change.
 
 ---
 
-### Synergy liability calculations
-
-#### Initial wagers (per bet)
+### Per-bet formulas (initial wagers)
 
 ```
-Payout  = Risk * decimal_odd
+Payout  = Risk * DecimalOdds
 Profit  = Risk - Payout
-Volume  = Risk - Payout
+Volume  = IF(Risk < (Payout - Risk), Risk, Payout - Risk)
+        = MIN(Risk, Profit)          ← the smaller of stake or potential profit
 ```
 
-#### Totals for initial wagers (per selection)
+> Volume is always positive. It equals Risk when Risk < Profit, otherwise it equals Profit.
+
+---
+
+### Totals row — initial wagers
 
 ```
-Total Risk    = SUM(all risks for selection)
-Total Payout  = SUM(all payouts for selection)
-Total Profit  = Total Risk (opposite selection) + Total Payout (this selection)
-Total Volume  = SUM(all volumes for selection)
+Total Risk    = SUM(all risks for this selection)
+Total Payout  = SUM(all payouts for this selection)
+Total Profit  = Total Risk (OPPOSITE selection) + Total Payout (this selection)
+Total Volume  = SUM(all volumes for this selection)
+Count         = COUNT(risk cells)
 ```
 
-#### Total liabilities after cash out (per selection)
+**Example — 2-way market:**
+- Patriots @ -150 (decimal 1.667), one bet of $100
+- Eagles @ +130 (decimal 2.300), one bet of $50
 
+Patriots totals:
 ```
-Total Risk   = SUM(all risks) — no change
-
-Total Payout = SUM(all payouts for selection)
-               where cashed-out bets use cashout amount instead of original payout
-
-Total Profit = Total Risk (opposite selection)
-             + Total Payout (this selection, updated with cashout amounts)
-             + current profit from opposite selection bets that were cashed out
-
-Total Volume = SUM(all volumes for selection)
-               where cashed-out bets use cashout amount instead of original payout
+Total Risk   = 100
+Total Payout = 100 * 1.667 = 166.67
+Total Profit = Eagles_Total_Risk + Patriots_Total_Payout = 50 + 166.67 = 216.67
+Total Volume = MIN(100, 66.67) = 66.67
 ```
 
 ---
 
-### Synergy liability report template
+### After cashout — per-bet update
 
-Source of truth: **Excel file in JIRA CH-499**
+When a bet is cashed out for amount **CO**:
 
-The template has four sections:
+```
+Payout_updated  = CO                          ← replaces Risk * Decimal
+Profit_updated  = Risk - CO
+Volume_updated  = IF(Risk < (CO - Risk), Risk, CO - Risk)
+```
 
-| Section | Contents |
+For non-cashed-out bets: all formulas remain unchanged.
+
+**3-way shorthand (used in xlsx template):**
+```
+Payout = IF(CashedOutAmount > 0, CashedOutAmount, Risk * DecimalOdds)
+```
+
+---
+
+### Totals row — after cashout (2-way)
+
+```
+Total Risk    = SUM(all risks)  ← unchanged
+
+Total Payout  = SUM(updated payouts)
+                = SUM(CO amounts for cashed-out bets)
+                + SUM(Risk * DecimalOdds for remaining bets)
+
+Total Profit  = OtherSide_Total_Risk
+              + ThisSide_Total_Payout_updated
+              + SUM(Profit_updated for OtherSide cashed-out bets)
+
+Total Volume  = SUM(updated volumes for this selection)
+```
+
+**Worked example — 1 bet, $100 on Patriots @ -150, cashed out at $84:**
+
+Patriots after cashout:
+```
+Payout  = 84
+Profit  = 100 - 84 = 16
+Volume  = IF(100 < (84-100), 100, 84-100) = IF(100 < -16, 100, -16) = -16
+```
+
+Patriots totals after cashout (no Eagles bets):
+```
+Total Risk    = 100
+Total Payout  = 84
+Total Profit  = Eagles_Risk(0) + Patriots_Payout(84) + Eagles_CO_Profit(0) = 84
+Total Volume  = -16
+```
+
+Eagles totals (opposite selection, same profit update):
+```
+Total Profit  = Patriots_Risk(100) + Eagles_Payout(0) + Patriots_CO_Profit(16) = 116
+```
+
+---
+
+### Totals row — after cashout (3-way)
+
+For a 3-way market (Home / Draw / Away), Total Profit for each selection includes the updated profits from all **other** selections' cashed-out bets:
+
+```
+Total Profit (Home) = Sum(Away_Risk non-CO) + Sum(Draw_Risk non-CO)
+                    + Sum(CO amounts for Away cashed-out bets)
+                    + Sum(CO amounts for Draw cashed-out bets)
+                    + Sum(Home_Payout_updated)
+```
+
+The xlsx formula (from `3way example` G26):
+```
+= SUM(Draw_Stakes_non-CO) + SUM(Away_Stakes_non-CO)
+  + (SUM(Home_Profit_updated) + Draw_CO_Profit + Away_CO_Profit)
+```
+
+---
+
+### Synergy wager details
+
+#### Wager Coverage
+
+| Change | Detail |
 |---|---|
-| Game odds | Odds for selections A and B in American and decimal format |
-| Initial wagers & liabilities | Per-bet Profit, Risk, Payout, Volume; totals per selection |
-| Cash Out details per selection | List of cashed-out bets highlighted in red; cashout amount column |
-| Liabilities after cash out | Synergy report recalculated with cashout amounts |
-
----
-
-### Wager details in Synergy
-
-#### Wager Coverage view
-
-- A **Cash Out** column is added alongside existing columns
-- The cash out icon is displayed on rows where the bet has been cashed out
-- The column supports filtering and sorting like all other columns
+| New column | **Cash Out** column added alongside existing columns |
+| Icon | Cash out icon shown on rows where bet has been cashed out |
+| Filter | Column supports filtering and sorting like all others |
 
 #### Wager Details popup
 
 | Field | Update |
 |---|---|
-| Status | Updated to **Cashed Out** |
-| Paid | Shows the cashout amount returned to the customer |
-| Lost | Empty (no win/loss grading) |
-| Won | Empty (no win/loss grading) |
+| Status | → **Cashed Out** |
+| Paid | → cashout amount returned to customer |
+| Lost | → empty |
+| Won | → empty |
 
-#### Trading Settings Management — Performance / Wagers
+#### Trading Settings Management paths
 
-Path: `Synergy > Trading Settings Management > Performance > Wagers`
+| Path | What updates |
+|---|---|
+| `Synergy > Trading Settings Management > Performance > Wagers` | Status → Cashed Out; Paid → cashout amount |
+| `Synergy > Trading Settings Management > Transactions` | Description: "Wager Cashed Out"; Credit: cashout amount |
 
-- Status field updated to **Cashed Out**
-- Paid amount updated to the cashout amount
+---
 
-#### Trading Settings Management — Transactions
+### Synergy liability report template
 
-Path: `Synergy > Trading Settings Management > Transactions`
+**Source of truth: Excel file in JIRA CH-499**
+Sheets: `1 bet example`, `multiple bets example`, `3way example`
 
-- Description: **Wager Cashed Out**
-- Credit column: cashout amount returned
-- Mirrors the customer-facing Transaction Report entry
+| Section | Contents |
+|---|---|
+| Game odds | American odds (hardcoded) + decimal odds (formula) for each selection |
+| Initial wagers | Per-bet Profit / Risk / Payout / Volume / Count; totals row |
+| Cash Out details | Cashed-out bets in **red font**; cashout amount column |
+| Liabilities after cash out | Full table recalculated with cashout amounts substituted |
+
+Color coding:
+- Yellow background = Selection A (favourite)
+- Orange background = Selection B (underdog)
+- No background = Draw (3-way only)
+- Red font = cashed-out bets
 
 ---
 
 ## N-Game
 
-### Report fields
+### Report columns
 
-N-Game reports show three columns: **Bets, Stake, Liability**
+**Bets · Stake · Liability**
 
-When a bet is cashed out, **Stake does not change**. Only **Liability** updates — and the update applies to **all selections in the market**.
-
-### How liability updates
-
-```
-New Liability (per selection) = Cashout Amount - (Total Stake A + Total Stake B)
-```
-
-This formula applies the same liability value to every selection in the market.
-
-**Example — SF 49ers vs Green Bay Packers**
-
-Bet: $50 on Green Bay @ +159 (decimal 2.59). Return = $129.50.
-
-Before cashout:
-
-| Outcome | Odds | Bets | Stake | Liability |
-|---|---|---|---|---|
-| San Francisco | -200 | 0 | 0 | -50 |
-| Green Bay Packers | +159 | 1 | 50 | 80 |
-
-Bet cashed out at **$100.00**:
-
-```
-Liability = 100 - (0 + 50) = 50
-```
-
-After cashout:
-
-| Outcome | Odds | Bets | Stake | Liability |
-|---|---|---|---|---|
-| San Francisco | -200 | 0 | 0 | **50** |
-| Green Bay Packers | +159 | 1 | 50 | **50** |
-
-**The liability update applies to both selections** — same value on both sides.
+When a bet is cashed out: **Stake does not change**. Only **Liability** updates, and the new value applies **identically to all selections** in the market.
 
 ---
 
-### N-Game liability calculations
-
-#### Initial wagers (per bet)
+### Per-bet formulas (initial wagers)
 
 ```
-Return    = Stake * decimal_odd
-Liability = (Stake * decimal_odd) - Stake
-          = Return - Stake
+Return    = Stake * DecimalOdds
+Liability = ROUND(Stake * DecimalOdds - Stake, 0)
+          = ROUND(Return - Stake, 0)
 ```
 
-#### Total liabilities before cash out (per selection)
+---
+
+### Total liabilities — before cashout
 
 ```
-Total Stake = SUM(all stakes for selection)
-Liability   = Total Return (selection A) - (Total Stake A + Total Stake B)
+Total Stake (selection X) = SUM(all stakes for X)
+
+Liability (selection X) = ROUND(
+    Total Return (selection X) - (Total Stake A + Total Stake B)
+, 0)
 ```
 
-#### Total liabilities after cash out (per selection)
+This is the same formula for every selection — each side's liability is its own potential total return minus all stakes combined.
+
+**Example — $50 on Green Bay @ +159 (decimal 2.59):**
+```
+GB Return   = 50 * 2.59 = 129.50
+GB Liability = ROUND(129.50 - (50 + 0), 0) = 80
+
+SF Return    = 0
+SF Liability = ROUND(0 - (0 + 50), 0) = -50
+```
+
+---
+
+### Total liabilities — after cashout
 
 ```
-Total Stake = SUM(all stakes) — no change
-
-Liability   = Total Cashed Out A
-            + Total Cashed Out B
-            + SUM(Return from non-cashed-out bets for this selection)
-            - (Total Stake A + Total Stake B)
+Liability (any selection) = ROUND(
+    SUM(all cashout amounts, selection A)
+  + SUM(all cashout amounts, selection B)
+  + SUM(Return of NON-cashed-out bets for this selection)
+  - (Total Stake A + Total Stake B)
+, 0)
 ```
 
-> **Note:** The N-Game liability after cash out template is not automated. If you add cashout data rows to the Excel template, you must manually extend the formula range.
+The same value applies to **both** (or all) selections — the liability is shared across the market.
+
+**Example — $50 on Green Bay @ +159, cashed out at $100:**
+```
+Liability = ROUND(0 + 100 + 0 - (0 + 50), 0) = 50
+```
+
+Both SF and GB show Liability = 50 after cashout.
+
+**Multi-bet example (from xlsx `Multiple bets example`):**
+
+Two bets cashed out ($65 on SF, $33 on GB); remaining bets have returns H8, H9 (SF side) and M7, M8, M9 (GB side):
+
+SF post-cashout liability:
+```
+= ROUND(65 + 33 + H8 + H9 - (Total_Stake_SF + Total_Stake_GB), 0)
+```
+
+GB post-cashout liability:
+```
+= ROUND(65 + 33 + M7 + M8 + M9 - (Total_Stake_SF + Total_Stake_GB), 0)
+```
+
+> **Note from xlsx:** The N-Game post-cashout liability template is **not automated**. If you add more cashout rows, you must manually extend the formula to include the new cashout amounts and any additional non-cashed-out returns.
 
 ---
 
 ### N-Game liability report template
 
-Source of truth: **Excel file in JIRA CH-500** (two tabs: single-bet example and multi-bet example)
-
-The template has four sections:
+**Source of truth: Excel file in JIRA CH-500**
+Sheets: `1 bet example`, `Multiple bets example`
 
 | Section | Contents |
 |---|---|
-| Game odds | Odds for selections A and B in American and decimal format |
+| Game odds | American + decimal odds for each selection |
 | Initial wagers | Per-bet Stake, Return, Liability for both selections |
-| Total liabilities before cash out | Total Bets, Stake, Liability per selection (matches live N-Game view) |
-| Cash Out | Cashed-out bets in red, cashout amount column |
-| Total liabilities after cash out | N-Game report recalculated with cashout amounts |
+| Total liabilities before cashout | Bets / Stake / Liability per selection (mirrors live N-Game view) |
+| Cash Out | Cashed-out bets in **red font**; cashout amount column |
+| Total liabilities after cashout | N-Game table recalculated with cashout amounts |
 
 ---
 
 ## Summary — what changes where
 
-| Platform | Routing rule | Fields updated | Stake/Risk changes? |
+| Platform | Routing trigger | Fields updated | Unchanged |
 |---|---|---|---|
-| Synergy | Bet placed pre-match | Profit, Payout, Volume (both selections) | Risk: no. Count: no |
-| N-Game | Bet placed live | Liability (all selections, same value) | Stake: no |
+| Synergy | Bet placed pre-match | Profit, Payout, Volume (both selections) | Risk, Count |
+| N-Game | Bet placed live | Liability (all selections, same value) | Bets, Stake |
+
+---
+
+## Known template anomalies (xlsx source files)
+
+These are bugs in the reference Excel files — do not replicate them in production:
+
+| File | Cell | Issue |
+|---|---|---|
+| NGame 1 bet example | H6–H11, Return formulas | References `$E$7`/`$E$8` (blank cells) instead of `$D$6`/`$D$7` |
+| NGame 1 bet example | M6 | `=L6*D7` missing $ anchors — breaks if row is copied |
+| Synergy multiple bets | T22 | `=S22` missing `*$D$9` multiplier |
+| Synergy multiple bets | T23 | `=S23*D23` self-references row 23 instead of `$D$9` |
+
+---
 
 ## Reference files
 
-- JIRA CH-499 — Synergy liability Excel template
-- JIRA CH-500 — N-Game liability Excel template (single-bet and multi-bet tabs)
+- JIRA CH-499 — Synergy Liability Report 2.0.xlsx (1 bet, multiple bets, 3-way tabs)
+- JIRA CH-500 — NGame Liability Report.xlsx (1 bet, multiple bets tabs)
 
 For the customer-facing cashout flow, see the `cashout-site` skill.
 For back office cashout configuration, see the `cashout-backoffice` skill.
