@@ -36,9 +36,9 @@ Configurability is hierarchical and operator-driven: cashout can be switched on/
 
 **Expected outcome:**
 
-- 📈 **Handle lift on enabled markets** — driven by retention of pending wagers and reduced abandonment _(baseline TBD — Analytics to provide)_
-- 🏆 **Competitive parity** — Cash Out is table stakes; absence is a documented gap in customer feedback and churn signals
-- 💰 **Net revenue from uplift retained on cashed-out Bets** — modelled per sport / league / market and recognised in liability reporting
+- 📈 **Increase handle on cashout-enabled markets** — by keeping bets open longer and returning funds earlier, driving more betting cycles per session
+- 🏆 **Competitive parity** — Cashout is standard across sportsbooks; not having it is an obvious gap and likely a churn driver
+- 💰 **Revenue captured from cashout settlements** — margin retained through early settlement, tracked by sport / league / market and reflected in liability reporting
 
 ---
 
@@ -48,46 +48,46 @@ Configurability is hierarchical and operator-driven: cashout can be switched on/
 
 #### 🙋 Customer Problem
 
-Punters with open Bets currently have no way to lock in a return before the market is settled. They watch a winning position drift back to neutral, or absorb the full loss on a losing position, with no exit. The friction applies equally to Bets placed long before the event and Bets placed during the event — and equally to Punters who want to settle the whole stake, only part of it, or have it auto-settle at a target value.
+Punters have no control over open bets once placed. They can’t lock in profit or limit losses before settlement, forcing an all-or-nothing outcome. This creates frustration, drives early disengagement during events, and reduces betting activity across both pre-match and in-play.
 
 #### 🏢 Business Problem
 
-Three intersecting drivers:
-1. **Competitive disadvantage.** Every major sportsbook offers Cash Out, typically in Full + Partial + Auto variants. Absence is visible in competitor acquisition messaging and in retention churn data.
-2. **Margin leak via abandonment.** Long-tenor open Bets carry abandonment risk — Punters reduce future deposits when they feel "stuck". Cash Out converts that emotional state into a transaction with uplift retained.
-3. **Trading transparency and risk control.** Without per-bet cashout settlement and a per-punter disable lever, Trading has no real-time signal on which positions Punters consider losing and no way to surgically remove cashout from flagged accounts.
+Three core drivers:
+1. **Competitive gap.** Cashout is standard across major sportsbooks (Full, Partial, Auto). Not having it is visible in competitor positioning and shows up in churn.
+2. **Lost handle and revenue.** Open bets create friction — punters feel stuck, disengage, and bet less. Cashout turns that into a transaction and keeps money cycling.
+3. **Limited trading control.** No per-bet cashout or per-punter controls means no clear signal of user intent and no ability to selectively restrict cashout on flagged accounts.
 
 ### 2.2 Why This Problem?
 
 #### 🔍 Evidence
 
-- **Competitive scan** — every major regulated sportsbook offers Cash Out across Full and Partial, with Auto becoming a standard expectation. Several market it as a primary acquisition feature.
-- **Customer signals** — Cash Out is the most-requested feature in support tickets and the betslip-feature feedback channel _(specific volume — Customer Support to confirm)_.
-- **Behavioural pattern** — open Bets show measurable engagement decay between placement and settlement. Cashing out converts that decay window into transaction value.
+- **Competitive scan** — Cashout is standard across major sportsbooks (Full, Partial, increasingly Auto) and often positioned as a key acquisition feature.
+- **Customer signals** — consistently one of the most requested features across support and betslip feedback _(volume — CS to confirm)_.
+- **Behavioural pattern** — engagement drops between bet placement and settlement. Cashout converts that idle window into transactions and additional betting activity.
 
 #### 📊 Scale
 
 | Dimension | Assessment |
 |:---|:---|
-| **Frequency** | Every active Punter session with an open Bet on an enabled sport / league / event / market sees the Cash Out option on the bet history page. |
-| **Severity** | High for retention. Moderate for direct revenue. Punters can technically place Bets without Cash Out, but the lack is a named churn driver. The reverse — having Cash Out — measurably increases session length and re-bet frequency in competitor data. |
+| **Frequency** | Any session with an open bet on an eligible market is exposed to cashout. |
+| **Severity** | High for retention, moderate for direct revenue. Users can bet without it, but its absence is a known churn driver. When available, it increases session length and re-bet frequency. |
 
 ### 2.3 Audience
 
 #### 🎯 Primary Audience
 
-**Active web-sportsbook Punters with open Bets on sports / leagues / events / markets enabled in the trading tooling.** This includes Punters across the full open-Bet lifecycle, on every variant of cashout (Full, Partial, Auto-as-operator-configured) we ship in v1.
+**Active web sportsbook punters with open bets on cashout-enabled markets.**  
+Covers the full open-bet lifecycle across all supported variants (Full, Partial, Auto — as configured in v1).
 
 #### 👥 Secondary Audience
 
 | Stakeholder | Why They Care |
 |:---|:---|
-| **Trading / Risk** | Owns the VigRate Table calibration, the uplift model, the exception list, the per-punter disable lever, and the sport / league / event / market enablement decisions. Real-time liability visibility is required to hedge. |
-| **Finance / Reporting** | Cashout amounts flow through the ledger as a new transaction type ("Wager Cashed Out"). Reconciliation, NGR calculation, and reporting must include cashout credits and the original wager debit. Partial cashout produces a partial-credit + partial-stake-still-pending pattern that Finance must support cleanly. |
-| **Customer Support** | New ticket category — disputes about cashout amount, "why was it suspended", "I lost the offer", auto-cashout fired at unexpected value. CS playbook needs to handle the validation flow, the new "Cashed Out" / "Partially Cashed Out" Bet statuses, the per-punter disable flag visibility, and suspension scenarios. |
-| **Product Analytics** | Owns KPI baselines (cashout adoption by variant, handle lift, NGR impact) and the dashboards that track them post-launch. |
-| **VIP Relations** | Per-punter disable flag and any group-level config affect VIP economics. |
-| **Legal / Compliance** | New transaction type, new liability category, new automated decision affecting Punter funds (Auto Cash Out triggers automatically). License-jurisdiction sign-off required before launch. |
+| **Trading / Risk** | Owns pricing (vig / uplift), eligibility, and per-punter controls. Needs real-time visibility and the ability to manage exposure (including disabling cashout where required). |
+| **Finance / Reporting** | Cashout introduces a new transaction type (“Wager Cashed Out”). Reporting must correctly handle credits, remaining stake (partial cashout), and NGR reconciliation. |
+| **Customer Support** | New ticket drivers: cashout amount disputes, suspended/unavailable offers, auto cashout triggers. Needs clear visibility of bet status and validation flows. |
+| **Product Analytics** | Defines baselines and tracks adoption, handle impact, and revenue performance post-launch. |
+| **VIP Relations** | Per-punter controls and eligibility rules directly impact VIP economics and experience. |
 
 ---
 
@@ -95,81 +95,105 @@ Three intersecting drivers:
 
 ### 3.1 Strategic Pillar
 
-> 🎯 **Customer Retention & Competitive Parity** — close the largest documented product gap vs major competitors and unlock retention engagement on long-tenor open Bets.
+> 🎯 **Customer Retention & Competitive Parity** — close a clear product gap vs competitors and increase engagement on open bets.
 
 ### 3.2 Company KPIs Impacted
 
 | KPI | Current Baseline | Target / Expected Impact |
 |:---|:---|:---|
-| **Cashout adoption rate** (% of eligible open Bets cashed out, split by Full / Partial / Auto) | _TBD — Analytics to establish via competitor benchmark + first-30-day production data_ | _Target TBD — proposed: track-and-set after 30 days post-launch_ |
-| **Handle on enabled markets** | _TBD — Analytics to provide pre-launch baseline_ | **+5–10% lift** in first 90 days post-launch _(target needs Trading + Analytics confirmation)_ |
-| **Customer churn — "no cashout" cited reason** | _TBD — CS to provide last-12-month support-ticket tag rate_ | **Reduce attribution to <1% of churn citations** within 6 months of launch |
-| **Net revenue per cashed-out Bet** (uplift retained vs original NGR projection) | Modelled in VigRate Table | **Within ±10% of modelled NGR** — Trading + Finance to confirm post-launch reconciliation |
-| **Cashout system reliability** (% of cashout requests resolved within 3 seconds end-to-end) | N/A — new system | **>95%** at launch |
+| **Cashout conversion rate** (% of displayed offers accepted, split by Full / Partial / Auto) | _TBD — Analytics to establish via first 30 days_ | _Target TBD — set after 30 days post-launch_ |
+| **Handle per Active User (enabled markets)** | _TBD — Analytics to provide pre-launch baseline_ | **+5–10% lift** in first 90 days vs control cohort _(Trading + Analytics to confirm)_ |
+| **Churn attributed to missing cashout** | _TBD — CS to provide last-12-month baseline_ | **<1% of churn drivers** within 6 months |
+| **Net revenue margin on cashed bets** (vs modelled NGR) | Modelled in VigRate Table | **Within ±10% of model** _(Trading + Finance to validate)_ |
+| **Cashout success rate** (% completed requests) | N/A — new system | **>97%** at launch |
+| **Cashout response time** (% resolved <3s end-to-end) | N/A — new system | **>95%** at launch |
 
-> **Rule applied:** every KPI names a precise metric, names a baseline or explicit "TBD — owner named", and names a target with a timeframe.
+> **Rule applied:** every KPI defines a clear metric, baseline (or named owner if TBD), and a target with timeframe.
 
 ---
 
 ## 4. Non-Financial Benefits
 
-> Additional value that does not appear directly in financial metrics but is meaningful to the business or customer.
+> Additional value that does not directly appear in financial metrics but is meaningful to the business and customer.
 
 ### 4.1 Additional Metrics
 
 | Metric | Type | Trackable | Notes |
 |:---|:---:|:---:|:---|
-| Customer NPS shift on enabled-Bet experience | Customer | ✅ | Quarterly survey; segment cut by "used Cash Out at least once" |
-| Cashout variant mix | Customer | ✅ | % Full vs % Partial vs % Auto across cashed-out Bets — sets the baseline for player-self-serve scoping later |
-| Session length on enabled events | Customer | ✅ | Session duration for Punters with an open eligible Bet |
-| Re-bet rate after a successful cashout | Customer | ✅ | % of Punters who place another Bet within 1 hour of cashing out |
-| Trading hedging actions per market on enabled leagues | Business | ✅ | Volume of hedging trades correlated with cashout-driven liability shifts |
-| Per-punter disable flag activations | Business | ✅ | Tracks how often Trading uses the lever; informs whether the bar is appropriate |
-| Support-ticket category "Cashout — dispute / question" | Business | ✅ | New CS tag — track first 90 days for spike detection |
+| Customer NPS — cashout users vs non-cashout users | Customer | ✅ | Segment: users who used Cashout at least once |
+| Cashout variant mix | Customer | ✅ | % Full vs Partial vs Auto — informs future self-serve scope |
+| Session length on enabled events | Customer | ✅ | Sessions with at least one eligible open bet |
+| Re-bet rate after cashout | Customer | ✅ | % placing another bet within 1 hour |
+| Trading hedging actions (enabled markets) | Business | ✅ | Correlated with cashout-driven liability shifts |
+| Per-punter disable usage | Business | ✅ | Frequency of Trading intervention |
+| Cashout-related support tickets | Business | ✅ | Track disputes, missing offers, Auto triggers |
+
+---
 
 ### 4.2 Measurement Approach
 
-**📐 Baseline.** Baselines exist for NPS, session length, and re-bet rate at the platform level but **not** segmented by "Punter with eligible cashout Bet". Analytics must extend the data pipeline to tag eligible Bets and segment metrics accordingly. _Owner: Analytics — dependency confirmed before launch._
+**📐 Baseline**  
+Existing metrics (NPS, session length, re-bet rate) are not segmented by cashout eligibility.  
+Analytics must tag eligible bets and enable segmentation.  
+_Owner: Analytics_
 
-**📊 Dashboard.** No dashboard exists for Cash Out today. A new dashboard is required covering: cashout adoption rate (by variant), average cashout amount, uplift captured per market, suspended-during-validation rate, accept-changes-toggle on/off ratio, per-sport / per-league / per-event / per-market breakdowns, and per-punter-disable-flag activations. _Owner: Analytics — dependency confirmed before launch._
+**📊 Dashboard**  
+New dashboard required covering:
+
+- Cashout conversion
+- Average cashout amount
+- Margin / uplift captured
+- Offer availability and suspension rate
+- Re-bet rate after cashout
+- Breakdown by sport / league / market
+- Per-punter disable usage
+
+_Owner: Analytics_
+
+---
 
 ### 4.3 Hypothesis
 
-> 🔮 **Hypothesis:** If we ship Full + Partial + Auto Cash Out (operator-configured) at v1, then we expect adoption to reach **5–10% of eligible open Bets** within the first 90 days, resulting in **measurable handle lift on enabled markets** and a **reduction in "no cashout" citations** in the support / churn channels — without introducing additional liability risk because the offer formula uses the proprietary VigRate Table with calibrated uplift, the per-punter disable flag gives Trading a surgical risk lever, and the maximum return is capped at the trading-tooling level.
+> 🔮 **Hypothesis:** Launching Full + Partial + Auto Cashout (operator-configured) will drive **5–10% adoption of eligible bets within 90 days**, increasing handle through faster bankroll recycling and reducing churn signals — while maintaining controlled risk via pricing (VigRate Table), per-punter controls, and capped exposure.
 
-**Targeted Areas**
+---
 
-- Customer bet history surface
-- Trading workflow — VigRate Table calibration, exception list management, per-punter disable, liability reporting, and real-time ticker alerts (with profit-cashout highlight)
-- Trading tooling configuration workflow (sport / league / event / market enablement)
-- Customer Support ticket-handling playbook (new statuses, new transaction type, suspension scenarios, per-punter disable visibility)
-- Analytics dashboards (new metrics, new segment cuts, variant breakdowns)
+### 4.4 Targeted Areas
 
-### 4.4 Cross-Department Review
+- Customer my bets (Cashout entry point)
+- Trading tooling (pricing, controls, enablement)
+- Customer Support workflows (statuses, disputes)
+- Analytics (tracking and reporting)
 
-| Department / Team | Reviewed? | Notes / Open Items |
+---
+
+### 4.5 Cross-Department Review
+
+> Teams that must review and confirm their part before launch
+
+| Team | Status | What needs to be confirmed |
 |:---|:---:|:---|
-| Product Operations | 🟡 Pending | Confirm v1 sport / league / event / market enablement defaults and the exception list scope |
-| Analytics / Data | 🟡 Pending | Owns baselines for §3.2 KPIs; owns new Cash Out dashboard delivery, including variant-mix segmentation |
-| Engineering — Customer Site | 🟡 Pending | Bet history page integration; Full / Partial / Auto UI; widget states; My Bets / Bet History / Transactions integration |
-| Engineering — Trading Tooling | 🟡 Pending | Sport / league / event / market hierarchical enable; per-punter disable flag; VigRate Table maintenance UI; **trader ticker alerts (real-time stream + profit-cashout highlight rule)**; **master kill-switch**; **cashout config audit log** |
-| Engineering — Pricing / Cashout Engine | 🟡 Pending | VigRate Table application, uplift model, true-odds vs served-odds fallback math |
-| Trading / Risk | 🟡 Pending | Sign off on production VigRate Table values; uplift model; exception list; per-punter disable workflow; v1 Auto Cash Out semantics |
-| Finance / Reporting | 🟡 Pending | New transaction types ("Wager Cashed Out" credit + matching debit, including Partial-cashout pattern); reconciliation rules |
-| Front-End / UX | 🟡 Pending | Bet history page Cash Out UI; Full / Partial slider / Auto setup; widget visual states; mobile-web responsive |
-| QA / Test | 🟡 Pending | Full state matrix: every widget state × Show Confirmation × Accept Changes × every variant (Full / Partial / Auto) × per-punter disable on/off |
-| Customer Support | 🟡 Pending | New "Cashed Out" / "Partially Cashed Out" status playbook; dispute handling for price-changed-during-validation; per-punter disable communication; Auto trigger explanations |
-| Legal / Compliance | 🔴 Blocked | New automated decision affecting Punter funds (especially Auto Cash Out automatic-trigger semantics); license-jurisdiction sign-off required |
-| VIP Relations | 🟡 Pending | Per-punter disable flag use cases; VIP-segment economics |
+| Product Ops | 🟡 | Which sports / leagues / markets will have cashout enabled at launch, and any exceptions |
+| Analytics | 🟡 | Baseline metrics and delivery of the cashout dashboard |
+| Eng — Customer | 🟡 | Cashout UI is implemented correctly in My Bets |
+| Eng — Trading | 🟡 | Trading can enable/disable cashout, manage settings, and has a kill switch |
+| Eng — Pricing | 🟡 | Cashout values are calculated correctly and fallback logic works if pricing fails |
+| Trading / Risk | 🟡 | Pricing model (VigRate), rules, and Cashout behaviour are approved |
+| Finance | 🟡 | Cashout transactions are recorded correctly and reports reconcile |
+| UX | 🟡 | Cashout UI and all states (available, suspended, success, error) are clear |
+| QA | 🟡 | All scenarios tested (Full , errors, suspensions, edge cases) |
+| Customer Support | 🟡 | Support team knows how to handle disputes, missing offers, and Auto Cashout questions |
+| VIP | 🟡 | Rules for VIP users (e.g. if cashout can be restricted) are defined |
 
-> **Rule applied:** Trading, Risk, Finance, and CS are listed (PRINCIPLE 8). Analytics is listed because new transaction and metric categories are introduced. Legal is listed because the feature creates a new automated decision affecting Punter funds.
+> **Rule applied:** all impacted teams are listed, with clear ownership and scope.
 
 ### 4.5 Incremental Delivery / Phases
 
 | Phase | Description / Deliverable | Timeline | Value Delivered |
 |:---|:---|:---|:---|
-| **Phase 1 — V1 Launch** | Full + Partial + Auto (operator-configured) Cash Out on the bet history page across every market enabled in trading tooling. Hierarchical sport / league / event / market enable. Per-punter disable flag. VigRate Table integration with true-odds-preferred / served-odds-fallback. Trading liability reporting. Full widget state coverage. | **Target launch — TBD by joint Trading + Eng readiness** | Engine built right the first time; competitive parity on the three foundational variants |
-| **Phase 2 — Player Self-Serve and Surface Expansion** | Player-set Auto Cash Out targets; player-configured Partial defaults; expansion to additional surfaces (e.g. live betslip, push / email notifications). | **Post-V1, scope follows Phase 1 stability** | Engagement deepening once the engine is proven |
+| **Phase 1 — V1 Launch (Full Cashout only)** | Full Cashout on bet history page for markets enabled in trading tooling. Hierarchical sport / league / event / market enablement. Per-punter disable flag. VigRate Table integration (pricing). Trading liability reporting. Core widget states (available, suspended, success, error). | **Target launch — TBD by Trading + Eng readiness** | Establish core capability, close competitive gap, validate pricing and usage |
+| **Phase 2 — Partial Cashout** | Introduce partial cashout (user selects amount). Extend UI and settlement logic. | **Post-V1, after stability + validation** | Increase flexibility and drive higher engagement / handle |
+| **Phase 3 — Auto Cashout + Surface Expansion** | Auto cashout (user-defined triggers). Expansion to additional surfaces (e.g. betslip, notifications). | **Post-Phase 2** | Deeper engagement and automation once core flows are proven |
 
 ---
 
