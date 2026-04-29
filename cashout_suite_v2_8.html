@@ -1,0 +1,1486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cash Out Suite</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f5f3;--bg2:#ffffff;--bg3:#f0efed;--bg4:#e8e7e4;
+  --border:#e0dfd9;--border2:#c8c7c0;
+  --text:#1a1a18;--text2:#5a5a52;--text3:#9a9a90;
+  --accent:#1a3a5c;--accent-lt:#e8f0f8;--accent-border:#b5cce0;
+  --green:#16a34a;--green-bg:#f0faf4;--green-border:#86efac;
+  --red:#dc2626;--red-bg:#fef2f2;--red-border:#fca5a5;
+  --amber:#d97706;--amber-bg:#fffbeb;--amber-border:#fcd34d;
+  --blue:#2563eb;--blue-bg:#eff6ff;--blue-border:#93c5fd;
+  --site-red:#c0392b;
+  --radius:6px;--radius-lg:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;font-size:13px}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg3)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+.app{display:flex;flex-direction:column;height:100vh}
+.main-nav{display:flex;align-items:center;border-bottom:1px solid var(--border);background:var(--accent);padding:0 20px;flex-shrink:0}
+.nav-logo{font-size:13px;font-weight:700;color:rgba(255,255,255,0.9);letter-spacing:0.1em;text-transform:uppercase;padding-right:24px;border-right:1px solid rgba(255,255,255,0.15);margin-right:8px}
+.mnb{padding:14px 16px;font-size:12px;font-weight:500;font-family:'Syne',sans-serif;border:none;background:none;cursor:pointer;color:rgba(255,255,255,0.55);border-bottom:2px solid transparent;margin-bottom:-1px;letter-spacing:0.04em;transition:color .2s}
+.mnb:hover{color:rgba(255,255,255,0.8)}
+.mnb.active{color:#fff;border-bottom-color:#fff}
+.main-content{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.mp{display:none;flex:1;overflow:hidden;flex-direction:column}.mp.active{display:flex}
+.topbar{padding:10px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:var(--bg2);flex-shrink:0}
+.tb-title{font-size:14px;font-weight:600}
+.tb-sub{font-size:11px;color:var(--text3);margin-top:1px}
+.subnav{display:flex;border-bottom:1px solid var(--border);background:var(--bg2);padding:0 20px;flex-shrink:0}
+.snb{padding:9px 14px;font-size:12px;font-family:'Syne',sans-serif;border:none;background:none;cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s}
+.snb:hover{color:var(--text2)}.snb.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:500}
+.cnt{padding:16px 20px;overflow-y:auto;flex:1}
+.sp{display:none}.sp.active{display:block}
+input[type=number],input[type=text],select{padding:4px 8px;font-size:12px;font-family:'DM Mono',monospace;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg2);color:var(--text);height:28px;transition:border-color .15s}
+input[type=number]:focus,input[type=text]:focus,select:focus{outline:none;border-color:var(--accent)}
+select{cursor:pointer}
+.btn{padding:4px 12px;font-size:12px;font-family:'Syne',sans-serif;font-weight:500;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg2);cursor:pointer;color:var(--text2);transition:all .15s}
+.btn:hover{background:var(--bg3);border-color:var(--border2)}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}.btn-primary:hover{background:#142e4a}
+.btn-danger{color:var(--red);border-color:var(--red-border)}.btn-danger:hover{background:var(--red-bg)}
+.btn-sm{padding:3px 9px;font-size:11px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 14px;margin-bottom:10px}
+.ct{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px}
+.bdg{display:inline-block;padding:2px 7px;border-radius:99px;font-size:10px;font-weight:600;font-family:'DM Mono',monospace}
+.bg{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.bb{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border)}
+.br{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.bgr{background:var(--bg3);color:var(--text3);border:1px solid var(--border)}
+.tog{position:relative;width:30px;height:16px;cursor:pointer;display:inline-block;flex-shrink:0}
+.tog input{opacity:0;width:0;height:0}
+.tsl{position:absolute;top:0;left:0;right:0;bottom:0;background:var(--bg4);border:1px solid var(--border2);border-radius:8px;transition:.2s}
+.tsl:before{position:absolute;content:"";height:10px;width:10px;left:2px;bottom:2px;background:var(--text3);border-radius:50%;transition:.2s}
+.tog input:checked+.tsl{background:var(--green);border-color:var(--green)}
+.tog input:checked+.tsl:before{transform:translateX(14px);background:#fff}
+.tbl{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+.tbl th{font-size:10px;font-weight:600;color:var(--text3);text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);background:var(--bg3);text-transform:uppercase;letter-spacing:0.05em}
+.tbl td{padding:6px 8px;border-bottom:1px solid var(--border);color:var(--text2)}
+.tbl tr:last-child td{border-bottom:none}.tbl tr:hover td{background:var(--bg3)}
+.lt2{display:grid;grid-template-columns:155px 1fr;gap:10px}
+.sidebar{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.sh{padding:7px 10px;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;background:var(--bg3);border-bottom:1px solid var(--border)}
+.si{padding:6px 10px;font-size:12px;cursor:pointer;color:var(--text3);border-left:2px solid transparent;transition:all .12s}
+.si:hover{background:var(--bg3);color:var(--text)}.si.active{background:var(--accent-lt);color:var(--accent);border-left-color:var(--accent);font-weight:500}
+.vr{display:grid;grid-template-columns:1fr 1fr 1fr 24px;gap:4px;align-items:center;margin-bottom:3px}
+.vr input{width:100%}
+.rmv{background:none;border:none;cursor:pointer;color:var(--red);font-size:14px;padding:0 2px;opacity:.5;transition:opacity .15s}.rmv:hover{opacity:1}
+.tli{padding:7px 10px;font-size:12px;cursor:pointer;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;transition:background .12s}
+.tli:hover{background:var(--bg3)}.tli.active{background:var(--accent-lt);color:var(--accent);border-left:2px solid var(--accent)}
+.fr{display:flex;gap:8px;align-items:center;margin-bottom:7px}
+.fr label{font-size:12px;color:var(--text2);min-width:100px}
+.fb{background:var(--bg3);border:1px solid var(--border);border-left:2px solid var(--accent);border-radius:var(--radius);padding:7px 10px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);line-height:1.6;margin-bottom:5px}
+.fb strong{color:var(--text);font-weight:500}
+.slbl{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px}
+.info-banner{background:var(--accent-lt);border:1px solid var(--accent-border);border-radius:var(--radius);padding:6px 12px;margin-bottom:10px;font-size:12px;color:var(--accent)}
+
+/* ODDS GRID */
+.odds-row{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:7px 10px;display:grid;align-items:center;gap:7px;margin-bottom:4px}
+.odds-row.two-way{grid-template-columns:88px 72px 62px 1fr 62px}
+.odds-row.three-way{grid-template-columns:72px 72px 62px 1fr 62px}
+.odds-row.edited{border-color:var(--accent);background:var(--accent-lt)}
+.odds-label{font-size:12px;color:var(--text2)}
+.odds-us{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace}.odds-us.edited{color:var(--accent);font-weight:500}
+.odds-prob{font-size:11px;font-family:'DM Mono',monospace;text-align:right;color:var(--text3)}.odds-prob.edited{color:var(--green);font-weight:500}
+.prob-bar-wrap{height:3px;background:var(--bg4);border-radius:2px}
+.prob-bar{height:100%;border-radius:2px;background:var(--border2);transition:width .3s}.prob-bar.edited{background:var(--accent)}
+.ti-footer{display:flex;justify-content:space-between;align-items:center;margin-top:7px;padding-top:7px;border-top:1px solid var(--border);font-size:11px}
+.implied-ok{color:var(--green);font-family:'DM Mono',monospace;font-size:12px;font-weight:500}
+.implied-warn{color:var(--amber);font-family:'DM Mono',monospace;font-size:12px;font-weight:500}
+.calc-bar{background:var(--accent-lt);border:1px solid var(--accent-border);border-radius:var(--radius);padding:6px 12px;margin-bottom:10px;font-size:12px;color:var(--accent);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+/* CASHOUT RESULTS PANEL - xlsx style */
+.co-panel{display:grid;gap:10px}
+.co-section{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.co-section-hdr{background:var(--accent);color:#fff;padding:7px 12px;font-size:12px;font-weight:600;letter-spacing:0.04em}
+.co-table{width:100%;border-collapse:collapse;font-size:12px}
+.co-table th{background:var(--bg3);color:var(--text3);padding:5px 10px;font-size:10px;font-weight:600;text-align:center;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:0.06em}
+.co-table td{padding:6px 10px;text-align:center;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace}
+.co-table td.label{text-align:left;font-family:'Syne',sans-serif;font-weight:500;color:var(--text2);font-size:11px}
+.co-table tr:last-child td{border-bottom:none}
+.co-table tr.highlight td{background:var(--amber-bg)}
+.co-table tr.highlight td.offer{background:#fff3cd;font-weight:700;color:var(--amber);font-size:14px}
+.profit-pos{color:var(--green);font-weight:600}
+.profit-neg{color:var(--red);font-weight:600}
+.co-offer-big{font-size:22px;font-weight:700;font-family:'DM Mono',monospace;color:var(--accent)}
+.co-summary{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;padding:10px 12px;background:var(--bg3);border-top:1px solid var(--border)}
+.co-sum-item{text-align:center}
+.co-sum-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:3px}
+.co-sum-val{font-size:15px;font-weight:600;font-family:'DM Mono',monospace}
+.totals-row{background:var(--accent-lt);border-top:2px solid var(--accent-border)}
+.totals-row td{font-weight:700;color:var(--accent)}
+
+/* VIG TABLE */
+.vig-display{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.vig-tbl{width:100%;border-collapse:collapse;font-size:11px}
+.vig-tbl th{background:var(--bg3);padding:4px 7px;text-align:left;font-size:10px;font-weight:600;color:var(--text3);border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:0.05em}
+.vig-tbl td{padding:3px 7px;border-bottom:0.5px solid var(--border);font-family:'DM Mono',monospace;color:var(--text2)}
+.vig-tbl tr.vig-active td{background:#fff3cd;color:var(--amber);font-weight:700}
+.vig-tbl tr.vig-active-red td{background:var(--red-bg);color:var(--red);font-weight:700}
+.vig-losing td{color:var(--red)}
+.vig-winning td{color:var(--green)}
+.vig-nochange td{color:var(--text3)}
+.vig-tbl tr:last-child td{border-bottom:none}
+
+/* SITE LIGHT */
+.site-shell{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.site-header{background:var(--accent);padding:9px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.1)}
+.site-nav-bar{display:flex;background:var(--accent);border-bottom:1px solid rgba(255,255,255,0.1)}
+.snt{flex:1;padding:8px;font-size:12px;text-align:center;cursor:pointer;color:rgba(255,255,255,0.5);border-bottom:2px solid transparent;font-family:'Syne',sans-serif;transition:color .15s}.snt:hover{color:rgba(255,255,255,0.8)}.snt.active{color:#fff;border-bottom-color:#fff}
+.bs-head{display:flex;background:var(--bg3);border-bottom:1px solid var(--border)}
+.bsh-tab{flex:1;padding:8px;font-size:12px;text-align:center;cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;font-family:'Syne',sans-serif;transition:color .15s}.bsh-tab.active{color:var(--site-red);border-bottom-color:var(--site-red);font-weight:500}
+.bst{display:flex;padding:5px 8px;gap:4px;background:var(--bg2);border-bottom:1px solid var(--border)}
+.bss{padding:3px 10px;font-size:11px;border-radius:3px;cursor:pointer;background:var(--bg3);color:var(--text3);border:1px solid var(--border);transition:all .15s}.bss.active{background:var(--site-red);color:#fff;border-color:var(--site-red)}
+.bcard{margin:5px 8px;background:var(--bg2);border:1px solid var(--border);border-radius:7px;overflow:hidden}
+.bcard.susp-card{border-color:var(--border2);background:var(--bg3)}
+.bcard.changed-card{border-color:var(--amber);background:var(--amber-bg)}
+.bch{background:var(--bg3);padding:7px 10px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
+.bch-team{font-size:12px;font-weight:600;color:var(--text);font-family:'Syne',sans-serif}
+.bch-sub{font-size:10px;color:var(--text3);margin-top:1px}
+.tpl-pill{font-size:9px;color:var(--text3);background:var(--bg4);padding:2px 6px;border-radius:3px;border:1px solid var(--border);font-family:'DM Mono',monospace}
+.bcb{padding:7px 10px}
+.bamts{display:flex;gap:12px;color:var(--text2);margin-bottom:5px;font-size:11px;font-family:'DM Mono',monospace}
+.bet-meta{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:6px;font-family:'DM Mono',monospace}
+.co-icon{width:13px;height:13px;background:#f59e0b;border-radius:2px;display:inline-flex;align-items:center;justify-content:center;font-size:7px;color:#000;font-weight:700;flex-shrink:0}
+.co-btn{width:100%;padding:7px;background:var(--site-red);color:#fff;border:none;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Syne',sans-serif;transition:background .15s}.co-btn:hover{background:#a93226}
+.co-btn.conf{background:var(--green)}.co-btn.conf:hover{background:#15803d}
+.co-btn.susp{background:var(--bg4);color:var(--text3);cursor:not-allowed;display:flex;align-items:center;justify-content:center;gap:6px}
+.co-btn.changed-up{background:#059669}
+.co-btn.changed-down{background:var(--amber)}
+.co-msg{padding:5px 8px;font-size:11px;border-radius:4px;margin-bottom:5px;font-family:'DM Mono',monospace}
+.co-msg.warn{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.co-msg.susp{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.co-success{padding:7px;font-size:11px;color:var(--green);text-align:center;border:1px solid var(--green-border);border-radius:5px;background:var(--green-bg);font-family:'DM Mono',monospace}
+.co-togs{padding:7px 10px;display:flex;flex-direction:column;gap:5px;border-top:1px solid var(--border);background:var(--bg3)}
+.co-tr{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--text2)}
+.sp-live{background:var(--site-red);color:#fff;font-size:9px;padding:1px 4px;border-radius:2px;margin-right:3px}
+.sp-p{background:var(--bg3);color:var(--text3);padding:2px 6px;border-radius:99px;font-size:10px;border:1px solid var(--border)}
+.sp-c{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);padding:2px 6px;border-radius:99px;font-size:10px}
+.mb-row{padding:7px 10px;border-bottom:1px solid var(--border)}
+.mb-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
+.mb-t{color:var(--text);font-weight:600;font-size:12px}
+.mb-m{color:var(--text3);font-size:10px;margin-bottom:2px;font-family:'DM Mono',monospace}
+.mb-f{display:flex;justify-content:space-between;align-items:center;margin-top:3px}
+.ht{width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed}
+.ht th{background:var(--bg3);color:var(--text3);padding:5px 7px;text-align:left;font-size:10px;font-weight:600;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:0.06em}
+.ht td{padding:5px 7px;border-bottom:1px solid var(--border);color:var(--text2)}
+.ht tr:hover td{background:var(--bg3)}
+.amt-p{color:var(--green);font-weight:600;font-family:'DM Mono',monospace}
+.amt-n{color:var(--red);font-weight:600;font-family:'DM Mono',monospace}
+.empty-st{padding:20px;text-align:center;color:var(--text3);font-size:12px;line-height:1.7}
+.sim-panel{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.state-desc{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px;font-size:11px;color:var(--text2);line-height:1.6}
+
+/* SITE V2 — closer to BetOnline screenshots */
+.site-mode{display:flex;gap:6px;align-items:center;background:var(--bg2);padding:5px 9px;border-radius:var(--radius);border:1px solid var(--border)}
+.site-mode-btn{padding:4px 10px;font-size:11px;border-radius:4px;cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--text3);font-family:'Syne',sans-serif}
+.site-mode-btn.active{background:var(--site-red);color:#fff;border-color:var(--site-red)}
+.new-badge{display:inline-block;background:#fbbf24;color:#000;font-size:8px;font-weight:700;padding:1px 4px;border-radius:2px;margin-left:4px;letter-spacing:0.04em;font-family:'Syne',sans-serif;vertical-align:middle}
+.co-icon-yellow{display:inline-flex;width:18px;height:14px;background:#fbbf24;border:1px solid #000;border-radius:1px;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#000;font-family:'Syne',sans-serif;flex-shrink:0;letter-spacing:-0.5px}
+.co-icon-red{display:inline-flex;width:18px;height:14px;background:var(--site-red);border-radius:2px;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;font-family:'Syne',sans-serif;flex-shrink:0}
+.co-amt-pill{display:inline-flex;align-items:center;gap:3px;background:var(--accent);color:#fff;font-size:11px;padding:2px 7px;border-radius:3px;font-family:'DM Mono',monospace;font-weight:600}
+/* Offering view */
+.off-shell{background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.off-hd{background:#000;color:#fff;padding:7px 12px;font-size:11px;font-weight:600;letter-spacing:0.06em;display:flex;justify-content:space-between;align-items:center}
+.off-mkts{display:grid;grid-template-columns:1fr 1fr 1fr;background:var(--bg3);border-bottom:1px solid var(--border)}
+.off-mkts > div{padding:7px 10px;font-size:11px;color:var(--text2);font-weight:600;display:flex;align-items:center;gap:5px;border-right:1px solid var(--border)}
+.off-mkts > div.active{color:var(--site-red);border-bottom:2px solid var(--site-red)}
+.off-game{padding:8px 12px;border-bottom:1px solid var(--border);font-size:12px;display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center}
+.off-game-team{display:flex;flex-direction:column;gap:2px}
+.off-game-team .gt-line{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;color:var(--text2)}
+.off-game-team .gt-name{font-weight:500;color:var(--text)}
+.off-px{font-family:'DM Mono',monospace;color:var(--site-red);font-size:11px;text-align:center;padding:3px 7px;background:var(--bg3);border-radius:3px;min-width:48px}
+/* Betslip card */
+.bsl-card{background:#222;color:#fff;border-radius:5px;padding:8px 10px;margin:6px 0}
+.bsl-hd{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#fff;margin-bottom:5px}
+.bsl-team{font-weight:600;color:#fff}
+.bsl-mkt{font-size:10px;color:rgba(255,255,255,0.6);font-family:'DM Mono',monospace}
+.bsl-amt{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:5px}
+.bsl-amt label{font-size:9px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:2px}
+.bsl-amt input{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;font-family:'DM Mono',monospace;width:100%}
+/* My bets card v2 */
+.mb-card{background:#1a1a18;color:#fff;border-radius:5px;padding:9px 12px;margin-bottom:8px}
+.mb-card-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.mb-card-title{font-weight:600;color:#fff;font-size:12px;display:flex;gap:5px;align-items:center}
+.mb-card-row{display:grid;grid-template-columns:75px 1fr;gap:5px;font-size:10px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.7);margin-bottom:2px}
+.mb-card-row strong{color:#fff;font-weight:500}
+.mb-status-pending{display:inline-flex;align-items:center;gap:4px;background:#fbbf24;color:#000;font-size:10px;padding:2px 6px;border-radius:2px;font-weight:600}
+.mb-status-cashed{display:inline-flex;align-items:center;gap:4px;background:#4a90e2;color:#fff;font-size:10px;padding:2px 6px;border-radius:2px;font-weight:600}
+/* Validation flow */
+.vflow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:10px;margin-bottom:10px;font-size:11px}
+.vfb{background:#dbeafe;border:1px solid #93c5fd;color:#1e40af;padding:5px 8px;border-radius:4px;font-weight:500;text-align:center;min-width:90px}
+.vfb.ok{background:#d1fae5;border-color:#86efac;color:#065f46}
+.vfb.no{background:#fee2e2;border-color:#fca5a5;color:#991b1b}
+.vfb.dec{background:#fef3c7;border-color:#fcd34d;color:#92400e}
+.vfa{color:var(--text3);font-size:14px}
+/* Widget detail */
+.bsh-tab.has-new::after{content:"NEW";background:#fbbf24;color:#000;font-size:8px;font-weight:700;padding:1px 4px;border-radius:2px;margin-left:4px}
+.co-confirm-btn{background:#22c55e !important;color:#fff !important}
+.co-confirm-btn strong{background:#86efac;color:#065f46;padding:1px 6px;border-radius:3px;margin:0 2px}
+.bcard.changed-up-card{border-color:#22c55e;background:#f0fdf4}
+.amt-highlight-up{background:#86efac;color:#065f46;padding:1px 6px;border-radius:3px;font-weight:700}
+.amt-highlight-down{background:#fcd34d;color:#92400e;padding:1px 6px;border-radius:3px;font-weight:700}
+/* Site cookie */
+.cookie-row{padding:5px 9px;background:#fef3c7;border:1px solid #fcd34d;color:#92400e;border-radius:var(--radius);font-size:11px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+
+/* SITE V3 — desktop + mobile end-to-end */
+.vp-bar{display:flex;gap:4px;background:var(--bg2);padding:3px;border-radius:var(--radius);border:1px solid var(--border)}
+.vp-btn{padding:4px 12px;font-size:11px;border-radius:4px;cursor:pointer;border:none;background:transparent;color:var(--text3);font-family:'Syne',sans-serif;font-weight:500}
+.vp-btn.active{background:var(--accent);color:#fff}
+.site-stage{padding:18px;background:#dadad5;min-height:560px;display:flex;justify-content:center;align-items:flex-start;flex:1;overflow:auto}
+.device.desktop{width:1100px;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.18);font-family:'Syne',sans-serif;flex-shrink:0}
+.device.mobile{width:380px;height:760px;background:#fff;border-radius:34px;overflow:hidden;box-shadow:0 14px 44px rgba(0,0,0,0.28);border:9px solid #1a1a1a;position:relative;flex-shrink:0}
+.device.mobile::before{content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);width:130px;height:24px;background:#1a1a1a;border-radius:0 0 14px 14px;z-index:5}
+.device.mobile .device-inner{height:100%;background:#f5f5f3;display:flex;flex-direction:column;position:relative}
+.dh{background:#000;color:#fff;display:flex;align-items:center;padding:9px 18px;gap:14px;border-bottom:3px solid var(--site-red);font-family:'Syne',sans-serif}
+.dh-logo{font-size:18px;font-weight:800;letter-spacing:0.06em;color:#fff}
+.dh-logo .dot{color:var(--site-red)}
+.dh-balance{margin-left:auto;font-size:12px;color:#bbb;font-family:'DM Mono',monospace}
+.dh-balance strong{color:#fff;margin-right:5px}
+.dh-user{font-size:11px;color:#bbb;border-left:1px solid #333;padding-left:14px;font-family:'DM Mono',monospace}
+.dnav{background:#1a1a1a;color:#fff;display:flex;padding:0 14px;border-bottom:1px solid #333}
+.dnav-item{padding:11px 18px;font-size:12px;color:rgba(255,255,255,0.55);cursor:pointer;border-bottom:2px solid transparent;font-family:'Syne',sans-serif;font-weight:500}
+.dnav-item:hover{color:#fff}
+.dnav-item.active{color:#fff;border-bottom-color:var(--site-red);background:#000}
+.dgrid{display:grid;grid-template-columns:230px 1fr 310px;background:#f5f5f3;min-height:580px}
+.dleft{background:#fff;border-right:1px solid var(--border);padding:12px 14px;overflow-y:auto;max-height:600px}
+.dleft-title{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin:8px 0 6px}
+.dleft-item{padding:6px 9px;font-size:12px;color:var(--text2);cursor:pointer;border-radius:4px;display:flex;justify-content:space-between;align-items:center;font-family:'Syne',sans-serif}
+.dleft-item:hover{background:var(--bg3)}
+.dleft-item.active{background:var(--accent-lt);color:var(--accent);font-weight:500}
+.co-mini{display:inline-flex;width:20px;height:14px;background:#fbbf24;border:1px solid #000;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#000;letter-spacing:-0.5px;border-radius:2px}
+.dmain{padding:14px 18px;overflow-y:auto;max-height:600px;font-family:'Syne',sans-serif}
+.dmain h2{font-size:14px;color:var(--text);margin-bottom:10px;font-weight:700;letter-spacing:0.04em}
+.dmain h3{font-size:13px;color:var(--text);margin:12px 0 8px;font-weight:600}
+.dright{background:#fff;border-left:1px solid var(--border);display:flex;flex-direction:column;max-height:600px}
+.dright-tabs{display:flex;background:#000;border-bottom:1px solid #333}
+.drt{flex:1;padding:11px 0;text-align:center;font-size:11px;cursor:pointer;color:rgba(255,255,255,0.55);border-bottom:2px solid transparent;font-family:'Syne',sans-serif;font-weight:500;display:flex;justify-content:center;align-items:center;gap:4px}
+.drt:hover{color:#fff}
+.drt.active{background:var(--site-red);color:#fff;border-bottom-color:#fff}
+.dright-body{padding:8px;overflow-y:auto;flex:1;background:#1a1a1a}
+.mh{background:#000;color:#fff;display:flex;align-items:center;padding:34px 16px 9px;gap:10px;border-bottom:3px solid var(--site-red);font-family:'Syne',sans-serif;flex-shrink:0}
+.mh-logo{font-size:14px;font-weight:800;letter-spacing:0.06em}
+.mh-logo .dot{color:var(--site-red)}
+.mh-balance{margin-left:auto;font-size:10px;color:#bbb;font-family:'DM Mono',monospace;text-align:right}
+.mh-balance strong{color:#fff;display:block;font-size:11px}
+.msubnav{background:#1a1a1a;display:flex;padding:0 8px;border-bottom:1px solid #333;overflow-x:auto;flex-shrink:0}
+.msn-item{padding:9px 12px;font-size:11px;color:rgba(255,255,255,0.55);cursor:pointer;border-bottom:2px solid transparent;font-family:'Syne',sans-serif;flex-shrink:0;font-weight:500;white-space:nowrap}
+.msn-item.active{color:#fff;border-bottom-color:var(--site-red)}
+.mscroll{padding:10px;overflow-y:auto;flex:1;background:#f5f5f3;padding-bottom:70px}
+.mnav{background:#1a1a1a;color:#fff;display:flex;border-top:1px solid #333;position:absolute;bottom:0;left:0;right:0;z-index:5;height:60px}
+.mnav-item{flex:1;padding:8px 0;text-align:center;font-size:9px;color:rgba(255,255,255,0.55);cursor:pointer;border-top:2px solid transparent;font-family:'Syne',sans-serif}
+.mnav-item.active{color:#fff;border-top-color:var(--site-red)}
+.mnav-icon{display:block;font-size:16px;margin-bottom:2px;line-height:1}
+.event-card{background:#fff;border:1px solid var(--border);border-radius:6px;margin-bottom:8px;overflow:hidden}
+.event-head{padding:6px 10px;background:#fafaf8;font-size:10px;color:var(--text3);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
+.event-head .league{font-weight:600;color:var(--text2);display:flex;gap:5px;align-items:center}
+.event-mkts-row{display:grid;grid-template-columns:1fr 70px 70px 70px;padding:5px 10px;background:#f5f5f3;font-size:9px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid var(--border)}
+.event-mkts-row > div{text-align:center}
+.event-mkts-row > div:first-child{text-align:left}
+.event-row{padding:7px 10px;border-bottom:1px solid var(--border);display:grid;grid-template-columns:1fr 70px 70px 70px;gap:5px;font-size:12px;align-items:center;font-family:'Syne',sans-serif;background:#fff}
+.event-row:last-child{border-bottom:none}
+.event-team{font-weight:500;color:var(--text)}
+.event-px{font-family:'DM Mono',monospace;text-align:center;font-size:11px;padding:5px 4px;background:#f7f7f5;border-radius:4px;cursor:pointer;border:1px solid var(--border);font-weight:600;color:var(--text)}
+.event-px:hover{background:var(--accent-lt);color:var(--accent);border-color:var(--accent-border)}
+.event-px-spread,.event-px-total{color:var(--text)}
+.event-px small{color:var(--text3);display:block;font-size:9px;font-weight:400;margin-bottom:1px}
+.event-row.mobile-row{grid-template-columns:1fr 56px 56px 56px;gap:3px;font-size:11px}
+.bcv3{background:#fff;border:1px solid var(--border);border-radius:6px;margin-bottom:8px;overflow:hidden;font-family:'Syne',sans-serif}
+.bcv3-head{padding:8px 10px;background:#1a1a1a;color:#fff;display:flex;justify-content:space-between;align-items:center}
+.bcv3-team{font-size:12px;font-weight:600;display:flex;align-items:center;gap:5px}
+.bcv3-team .live-pill{background:var(--site-red);color:#fff;font-size:9px;padding:1px 5px;border-radius:2px;font-weight:700}
+.bcv3-meta{padding:7px 10px;font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;border-bottom:1px solid var(--border)}
+.bcv3-meta-row{display:flex;justify-content:space-between;padding:1px 0}
+.bcv3-meta-row span:first-child{color:var(--text3)}
+.bcv3-meta-row span:last-child{color:var(--text2);font-weight:500}
+.bcv3-action{padding:8px 10px;background:var(--bg3);border-top:1px solid var(--border)}
+.bcv3-status{padding:7px 10px;font-size:11px;display:flex;justify-content:space-between;align-items:center;font-family:'DM Mono',monospace}
+.bcv3-status.cashed{background:#dbeafe;color:#1e40af}
+.bcv3-status.pending{background:#fef3c7;color:#92400e}
+.sim-drawer{position:fixed;bottom:18px;right:18px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);box-shadow:0 8px 28px rgba(0,0,0,0.22);padding:12px;width:280px;display:none;z-index:200}
+.sim-drawer.open{display:block}
+.sim-drawer-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.sim-drawer .fr{margin-bottom:5px}
+.sim-trigger{position:fixed;bottom:18px;right:18px;background:var(--accent);color:#fff;padding:8px 14px;border-radius:99px;font-size:11px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,0.22);font-family:'Syne',sans-serif;font-weight:500;border:none;z-index:199}
+.sim-trigger:hover{background:#142e4a}
+
+/* TICKER (Instant Action + Bet Ticker) */
+.tickr-shell{background:#1a1a1a;border:1px solid #333;border-radius:6px;overflow:hidden;font-family:'DM Mono',monospace;font-size:11px;color:#e8e8e8}
+.tickr-shell.ng{background:#1a1a1a}
+.tickr-titlebar{background:#0066cc;color:#fff;padding:5px 10px;font-size:10px;display:flex;align-items:center;gap:14px;font-family:'Syne',sans-serif}
+.tickr-tabs{display:flex;background:#2d2d2d;border-bottom:1px solid #444}
+.tickr-tabs.ng{background:#000;color:#9bda3e;font-family:'Syne',sans-serif}
+.tickr-tab{padding:7px 14px;font-size:11px;color:#aaa;cursor:pointer;border-right:1px solid #444;background:#1f1f1f}
+.tickr-tab.active{color:#fff;background:#3a3a3a}
+.tickr-tabs.ng .tickr-tab{background:#1a1f1a;color:#888}
+.tickr-tabs.ng .tickr-tab.active{background:#9bda3e;color:#000;font-weight:600}
+.tickr-filters{display:flex;gap:5px;padding:6px 10px;background:#2d2d2d;border-bottom:1px solid #444;flex-wrap:wrap;align-items:center}
+.tickr-pill{padding:3px 9px;background:#3d3d3d;color:#ddd;border-radius:3px;font-size:10px;cursor:pointer;font-family:'Syne',sans-serif}
+.tickr-pill.ok{background:#16a34a;color:#fff}
+.tickr-pill.danger{background:#dc2626;color:#fff}
+.tickr-controls{display:flex;gap:6px;padding:6px 10px;background:#2d2d2d;border-bottom:1px solid #444;align-items:center}
+.tickr-btn{padding:3px 11px;background:#444;color:#ddd;border:1px solid #555;border-radius:3px;font-size:10px;cursor:pointer;font-family:'Syne',sans-serif}
+.tickr-btn:hover{background:#555}
+.tickr-btn.ok{background:#16a34a;color:#fff;border-color:#16a34a}
+.tickr-statusbar{padding:5px 10px;background:#16a34a;color:#fff;font-size:11px;font-family:'DM Mono',monospace}
+.tickr-conn{font-weight:600}
+.tickr-tbl{width:100%;border-collapse:collapse;font-size:11px;font-family:'DM Mono',monospace}
+.tickr-tbl thead th{background:#2d2d2d;color:#888;text-transform:uppercase;font-size:9px;padding:5px 8px;text-align:left;border-bottom:1px solid #444;letter-spacing:0.06em;font-weight:600;font-family:'Syne',sans-serif}
+.tickr-tbl tbody td{padding:4px 8px;border-bottom:1px solid #2a2a2a;color:#ddd;vertical-align:top}
+.tickr-tbl tbody tr:hover td{background:#252525}
+.tickr-tbl.ia tbody tr.cashout td{font-style:italic;color:#fbbf24}
+.tickr-tbl.ng tbody tr.cashout td{color:#fff}
+.tickr-tbl.ng tbody tr.cashout-profit td{color:var(--co-fg, #ef4444);background:var(--co-bg, #3b82f6)}
+.tickr-tbl tbody tr td.status-sold{color:#22c55e;font-weight:600}
+.tickr-tbl tbody tr td.status-cashed{color:#ef4444;font-weight:600;background:rgba(239,68,68,0.1);padding:4px 8px}
+.tickr-tbl .amt-pos{color:#22c55e}
+.tickr-tbl .amt-neg{color:#ef4444}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="main-nav">
+    <div class="nav-logo">Cash Out Suite</div>
+    <button class="mnb active" onclick="switchMain('bo')">Management</button>
+    <button class="mnb" onclick="switchMain('calc')">Calculator</button>
+    <button class="mnb" onclick="switchMain('site')">Customer site</button>
+    <button class="mnb" onclick="switchMain('rep')">Reports</button>
+    <button class="mnb" onclick="switchMain('tic')">Bet Ticker</button>
+    <div style="margin-left:auto;display:flex;gap:10px;align-items:center">
+      <span style="font-size:10px;color:rgba(255,255,255,0.4);font-family:'DM Mono',monospace">SCOPE</span>
+      <span style="font-size:10px;background:rgba(255,255,255,0.1);color:#fff;padding:2px 8px;border-radius:3px;font-family:'DM Mono',monospace">v0.7 · Full Cashout</span>
+      <span id="kill-switch-indicator" style="font-size:10px;color:#22c55e;font-family:'DM Mono',monospace;display:none">● ARMED</span>
+      <span style="font-size:11px;color:rgba(255,255,255,0.4);font-family:'DM Mono',monospace">E.MORENO</span>
+    </div>
+  </div>
+  <div class="main-content">
+
+    <!-- BACK OFFICE -->
+    <div id="main-bo" class="mp active">
+      <div class="topbar">
+        <div><div class="tb-title">Cash out management</div><div class="tb-sub">Hierarchical enablement &middot; VigRate templates &middot; Customer rules &middot; Per-punter disable &middot; Audit log</div></div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:6px;padding:6px 10px;display:flex;gap:8px;align-items:center">
+            <span style="font-size:10px;color:#991b1b;font-weight:700;text-transform:uppercase;letter-spacing:0.06em">Master kill-switch</span>
+            <label class="tog" style="width:30px;height:16px"><input type="checkbox" id="masterKill" checked onchange="toggleMasterKill()"><span class="tsl"></span></label>
+            <span id="kill-state" style="font-size:10px;font-family:'DM Mono',monospace;color:#16a34a">ON</span>
+          </div>
+        </div>
+      </div>
+      <div class="subnav">
+        <button class="snb active" onclick="switchBO('settings')">Settings manager</button>
+        <button class="snb" onclick="switchBO('templates')">VigRate templates</button>
+        <button class="snb" onclick="switchBO('customers')">Customer manager</button>
+        <button class="snb" onclick="switchBO('punter')">Punter disable</button>
+        <button class="snb" onclick="switchBO('audit')">Audit log <span style="font-size:9px;background:#fde68a;color:#92400e;padding:1px 4px;border-radius:2px;margin-left:3px;font-family:'DM Mono',monospace">SHOULD</span></button>
+      </div>
+      <div class="cnt">
+        <div id="bo-settings" class="sp active">
+          <div class="card"><div class="ct">Filters</div><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <div style="display:flex;gap:6px;align-items:center"><label style="font-size:12px;color:var(--text2)">Brand</label><select style="width:120px"><option>All</option><option>BetOnline</option></select></div>
+            <div style="display:flex;gap:6px;align-items:center"><label style="font-size:12px;color:var(--text2)">Market</label><select style="width:120px"><option>Money line</option><option>Spread</option><option>Total</option></select></div>
+            <div style="display:flex;gap:10px;align-items:center;margin-left:auto"><span style="font-size:12px;color:var(--text2)">Enable cashout</span><label class="tog"><input type="checkbox" checked><span class="tsl"></span></label><span class="bdg bg">Live</span><span class="bdg bb">Pre</span></div>
+          </div></div>
+          <div class="lt2">
+            <div class="sidebar"><div class="sh">Sports</div><div id="bo-sports-list"></div></div>
+            <div class="card" style="padding:0;overflow:hidden">
+              <div style="padding:7px 12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+                <div style="font-size:13px;font-weight:600" id="bo-title">Football</div>
+                <div style="display:flex;gap:5px" id="bo-edit-ctrl"><button class="btn btn-sm" onclick="boEnableEdit()">Edit</button></div>
+              </div>
+              <div style="overflow-x:auto"><table class="tbl"><thead><tr><th style="width:75px">Sport</th><th style="width:90px">League</th><th style="width:85px">Region</th><th style="width:44px;text-align:center">Live</th><th style="width:44px;text-align:center">Pre</th><th>Template</th></tr></thead><tbody id="bo-tbody"></tbody></table></div>
+            </div>
+          </div>
+        </div>
+        <div id="bo-templates" class="sp">
+          <div style="display:grid;grid-template-columns:170px 1fr;gap:10px">
+            <div class="card" style="padding:0;overflow:hidden"><div style="padding:7px 10px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-weight:600">Templates</span><button class="btn btn-sm btn-primary" onclick="boNewTpl()">+ New</button></div><div id="bo-tpl-list"></div></div>
+            <div id="bo-tpl-editor"></div>
+          </div>
+        </div>
+        <div id="bo-customers" class="sp">
+          <div class="card"><div class="ct">Filters</div><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <div style="display:flex;gap:6px;align-items:center"><label style="font-size:12px;color:var(--text2)">Brand</label><select style="width:110px"><option>BetOnline</option></select></div>
+            <div style="display:flex;gap:6px;align-items:center"><label style="font-size:12px;color:var(--text2)">Group</label><label style="font-size:12px;display:flex;gap:3px;align-items:center"><input type="radio" name="cgr" checked> Group</label><label style="font-size:12px;display:flex;gap:3px;align-items:center"><input type="radio" name="cgr"> Country</label><label style="font-size:12px;display:flex;gap:3px;align-items:center"><input type="radio" name="cgr"> CSV</label><select style="width:100px"><option>VIP</option><option>Standard</option></select></div>
+          </div></div>
+          <div class="card"><div style="display:flex;gap:14px;align-items:center;margin-bottom:10px">
+            <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px">Cashout enabled</div><div style="display:flex;gap:6px;align-items:center"><label class="tog"><input type="checkbox" checked><span class="tsl"></span></label><span class="bdg bg">Live</span><span class="bdg bb">Pre</span></div></div>
+            <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px">Apply template</div><select id="cust-tpl-sel" style="width:150px"></select></div>
+            <div style="margin-left:auto;display:flex;gap:5px"><button class="btn btn-sm btn-primary">Save</button><button class="btn btn-sm">Cancel</button></div>
+          </div></div>
+        </div>
+
+        <!-- PUNTER DISABLE -->
+        <div id="bo-punter" class="sp">
+          <div class="info-banner" style="background:#fef2f2;border-color:#fca5a5;color:#991b1b"><strong>Per-punter disable</strong> — when set, the cashout UI is hidden for this Punter on every open Bet AND the cashout engine rejects any cashout request for this Punter. Reversible. Audit-logged.</div>
+          <div class="card">
+            <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+              <input type="text" id="punter-search" placeholder="Search Punter ID, name, or upload CSV..." style="flex:1">
+              <button class="btn btn-sm">Upload CSV</button>
+              <button class="btn btn-sm btn-primary" onclick="addPunterDisable()">+ Add Disable</button>
+            </div>
+            <table class="tbl">
+              <thead><tr><th>Punter ID</th><th>Name</th><th>Reason</th><th style="width:90px">Set by</th><th style="width:120px">Set at</th><th style="width:80px;text-align:center">Disabled</th><th style="width:60px"></th></tr></thead>
+              <tbody id="punter-tbody"></tbody>
+            </table>
+          </div>
+          <div class="card" style="font-size:11px;color:var(--text3);line-height:1.7">
+            <strong style="color:var(--text2)">Two-sided enforcement:</strong>
+            <ul style="margin:5px 0 0 18px">
+              <li><strong>UI side:</strong> Cashout option entirely hidden from this Punter's bet history</li>
+              <li><strong>Engine side:</strong> Any cashout request from this Punter (e.g. from a stale client) is rejected with a clear error that does not expose the rationale to the Punter</li>
+              <li><strong>CS visibility:</strong> Customer Support tooling shows the flag + audit trail when troubleshooting "where's my cashout button"</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- AUDIT LOG -->
+        <div id="bo-audit" class="sp">
+          <div class="info-banner">Every cashout configuration change is logged with <strong>timestamp, operator, and before/after values</strong>. Required for compliance review and post-incident analysis. <span class="bdg" style="background:#fde68a;color:#92400e;border:1px solid #fcd34d;margin-left:5px">Should-have</span></div>
+          <div class="card">
+            <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+              <select style="width:140px"><option>All actions</option><option>Master kill-switch</option><option>Hierarchical enable</option><option>Template change</option><option>Per-punter disable</option></select>
+              <select style="width:120px"><option>Last 7 days</option><option>Last 30 days</option><option>All time</option></select>
+              <input type="text" placeholder="Filter by operator..." style="flex:1">
+              <button class="btn btn-sm">Export</button>
+            </div>
+            <table class="tbl">
+              <thead><tr><th style="width:120px">Timestamp</th><th style="width:90px">Operator</th><th style="width:160px">Action</th><th>Target</th><th>Before → After</th></tr></thead>
+              <tbody id="audit-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CALCULATOR -->
+    <div id="main-calc" class="mp">
+      <div class="topbar"><div><div class="tb-title">Calculator</div><div class="tb-sub">Linked odds &mdash; margin locked, odds auto-adjust on change</div></div></div>
+      <div class="cnt">
+        <div id="calc-bar" class="calc-bar"></div>
+        <div style="display:grid;grid-template-columns:320px 1fr;gap:14px">
+          <!-- LEFT: inputs -->
+          <div>
+            <div class="card">
+              <div class="ct">Template &amp; scenario</div>
+              <div class="fr"><label>Template</label><select id="c_tpl" onchange="onTplChange()" style="width:160px"></select></div>
+              <div id="tpl-params" style="font-size:11px;color:var(--text3);line-height:1.8;margin-bottom:8px"></div>
+              <div class="fr"><label>Market type</label><select id="c_mkt" onchange="onMktChange()"><option value="2">2-way (moneyline)</option><option value="3">3-way (soccer)</option></select></div>
+              <div class="fr"><label>Event state</label><select id="c_state" onchange="calcCO()"><option value="pre">Pre-event, no line move</option><option value="live">Line moved / Live</option></select></div>
+            </div>
+            <div class="card">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                <div class="ct" style="margin:0">Initial odds &amp; wager</div>
+                <div style="display:flex;gap:5px;align-items:center"><label style="font-size:11px;color:var(--text2)">Margin</label><input type="number" id="init_margin" value="4.34" step="0.01" min="0.01" max="20" style="width:58px" oninput="onMarginChange('init')"><span style="font-size:11px;color:var(--text3)">%</span></div>
+              </div>
+              <div style="font-size:11px;color:var(--text3);margin-bottom:7px">TI locked to <strong id="init_ti_label" style="color:var(--text2);font-family:'DM Mono',monospace">1.0434</strong></div>
+              <div id="init-odds-grid"></div>
+              <div class="ti-footer"><span style="color:var(--text3)">Total implied</span><span class="implied-ok" id="init_ti_check">1.0434</span></div>
+              <div style="border-top:1px solid var(--border);margin-top:8px;padding-top:8px">
+                <div id="wager-inputs"></div>
+              </div>
+            </div>
+            <div class="card" id="new_odds_card">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                <div class="ct" style="margin:0">New odds (current)</div>
+                <div style="display:flex;gap:5px;align-items:center"><label style="font-size:11px;color:var(--text2)">Margin</label><input type="number" id="new_margin" value="4.21" step="0.01" min="0.01" max="20" style="width:58px" oninput="onMarginChange('new')"><span style="font-size:11px;color:var(--text3)">%</span></div>
+              </div>
+              <div style="font-size:11px;color:var(--text3);margin-bottom:7px">TI locked to <strong id="new_ti_label" style="color:var(--text2);font-family:'DM Mono',monospace">1.0421</strong></div>
+              <div id="new-odds-grid"></div>
+              <div class="ti-footer"><span style="color:var(--text3)">Total implied</span><span class="implied-ok" id="new_ti_check">1.0421</span></div>
+            </div>
+          </div>
+
+          <!-- RIGHT: results -->
+          <div>
+            <div id="co-results"></div>
+            <div class="vig-display">
+              <div class="card" style="padding:0;overflow:hidden">
+                <div style="padding:7px 12px;background:var(--accent);color:#fff;font-size:12px;font-weight:600">Vig rate table &mdash; selection applied</div>
+                <table class="vig-tbl" id="vig-table-display"><thead><tr><th>Position</th><th>From</th><th>Up to</th><th>Vig</th></tr></thead><tbody id="vig-tbody"></tbody></table>
+              </div>
+              <div class="card">
+                <div class="ct">Breakdown</div>
+                <div id="r_steps"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CUSTOMER SITE -->
+    <div id="main-site" class="mp">
+      <div class="topbar">
+        <div><div class="tb-title">Customer site</div><div class="tb-sub" id="site-sub">End-to-end experience &mdash; Cash Out integrated</div></div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <div class="vp-bar">
+            <button class="vp-btn active" onclick="setViewport('desktop')">Desktop</button>
+            <button class="vp-btn" onclick="setViewport('mobile')">Mobile</button>
+          </div>
+          <div class="site-mode">
+            <span style="font-size:11px;color:var(--text3);margin-right:3px">NEW badge</span>
+            <label class="tog" style="width:26px;height:14px"><input type="checkbox" id="newBadge" checked onchange="renderSite()"><span class="tsl"></span></label>
+          </div>
+        </div>
+      </div>
+      <div class="site-stage" id="site-stage">
+        <!-- device rendered by renderSite() -->
+      </div>
+      <button class="sim-trigger" onclick="toggleSimDrawer()">⚙ Cashout sim</button>
+      <div id="sim-drawer" class="sim-drawer">
+        <div class="sim-drawer-hd">
+          <div class="ct" style="margin:0">Cashout simulator</div>
+          <button class="btn btn-sm" onclick="toggleSimDrawer()">×</button>
+        </div>
+        <div class="fr"><label style="font-size:11px;color:var(--text2);min-width:60px">State</label>
+          <select id="sim_state" onchange="renderSite()" style="width:100%">
+            <option value="available" selected>Available</option>
+            <option value="suspended">Suspended</option>
+            <option value="confirm">Confirm (Show Confirmation)</option>
+            <option value="changed_up">Price changed UP</option>
+            <option value="changed_down">Price changed DOWN</option>
+            <option value="susp_during_val">Suspended during validation</option>
+            <option value="cashed">Successfully cashed out</option>
+            <option value="empty">No bets available</option>
+          </select>
+        </div>
+        <div class="fr"><label style="font-size:11px;color:var(--text2);min-width:60px">Accept changes</label>
+          <label class="tog" style="width:30px;height:16px"><input type="checkbox" id="acceptChanges" onchange="renderSite()"><span class="tsl"></span></label>
+        </div>
+        <div class="fr"><label style="font-size:11px;color:var(--text2);min-width:60px">Show confirm</label>
+          <label class="tog" style="width:30px;height:16px"><input type="checkbox" id="showConfirm" checked onchange="renderSite()"><span class="tsl"></span></label>
+        </div>
+        <div id="state-desc" style="font-size:10px;color:var(--text3);line-height:1.5;border-top:1px solid var(--border);padding-top:7px;margin-top:5px"></div>
+      </div>
+    </div>
+
+    <!-- REPORTS -->
+    <div id="main-rep" class="mp">
+      <div class="topbar"><div><div class="tb-title">Trading reports &mdash; Liabilities</div><div class="tb-sub">Synergy (pre-match bets) &middot; N-Game (live bets) &middot; live-updated when bets are cashed out</div></div></div>
+      <div class="subnav">
+        <button class="snb active" onclick="switchRep('synergy')">Synergy &mdash; pre-match</button>
+        <button class="snb" onclick="switchRep('ngame')">N-Game &mdash; live</button>
+        <button class="snb" onclick="switchRep('rules')">Routing rules</button>
+      </div>
+      <div class="cnt">
+        <div id="rep-synergy" class="sp active">
+          <div class="info-banner">Bets placed <strong>pre-match</strong> update Synergy &mdash; whether cashed out before kick-off or in-play. Toggle <strong>Cashed out</strong> on any row and watch totals update.</div>
+          <div id="synergy-content"></div>
+        </div>
+        <div id="rep-ngame" class="sp">
+          <div class="info-banner">Bets placed <strong>live</strong> update N-Game. The liability after cashout is shared across <em>all</em> selections in the market.</div>
+          <div id="ngame-content"></div>
+        </div>
+        <div id="rep-rules" class="sp">
+          <div class="card">
+            <div class="ct">Routing rule</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:10px">
+              <div style="background:var(--accent-lt);border:1px solid var(--accent-border);border-radius:var(--radius);padding:12px">
+                <div style="font-size:13px;font-weight:600;color:var(--accent);margin-bottom:6px">Bet placed PRE-MATCH</div>
+                <div style="font-size:12px;color:var(--text2);line-height:1.5">&rarr; Synergy<br><span style="color:var(--text3)">Regardless of when cashout occurs (pre or live)</span></div>
+              </div>
+              <div style="background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--radius);padding:12px">
+                <div style="font-size:13px;font-weight:600;color:var(--green);margin-bottom:6px">Bet placed LIVE</div>
+                <div style="font-size:12px;color:var(--text2);line-height:1.5">&rarr; N-Game<br><span style="color:var(--text3)">Regardless of when cashout occurs</span></div>
+              </div>
+            </div>
+            <div class="ct" style="margin-top:14px">What changes after cashout</div>
+            <table class="tbl">
+              <thead><tr><th>Platform</th><th>Fields updated</th><th>Fields unchanged</th><th>Update applies to</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Synergy</strong></td><td>Profit, Payout, Volume</td><td>Risk, Count</td><td>Both selections</td></tr>
+                <tr><td><strong>N-Game</strong></td><td>Liability</td><td>Bets, Stake</td><td>All selections (same value)</td></tr>
+              </tbody>
+            </table>
+            <div class="ct" style="margin-top:14px">Wager details (Synergy only)</div>
+            <table class="tbl">
+              <thead><tr><th>Where</th><th>Update</th></tr></thead>
+              <tbody>
+                <tr><td>Wager Coverage column</td><td>Cash Out icon shown; sortable/filterable column added</td></tr>
+                <tr><td>Wager Details popup</td><td>Status &rarr; Cashed Out; Paid &rarr; cashout amount; Lost/Won &rarr; empty</td></tr>
+                <tr><td>Trading Settings Mgmt &rarr; Performance &rarr; Wagers</td><td>Status + Paid amount updated</td></tr>
+                <tr><td>Trading Settings Mgmt &rarr; Transactions</td><td>Description: "Wager Cashed Out"; Credit: cashout amount</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BET TICKER -->
+    <div id="main-tic" class="mp">
+      <div class="topbar"><div><div class="tb-title">Bet Ticker &mdash; Trading streams</div><div class="tb-sub">Pre-match (Synergy &middot; Instant Action) &middot; Live (N-Game &middot; Bet Ticker)</div></div></div>
+      <div class="subnav">
+        <button class="snb active" onclick="switchTic('pre')">Pre-match &mdash; Instant Action</button>
+        <button class="snb" onclick="switchTic('live')">Live &mdash; Bet Ticker</button>
+      </div>
+      <div class="cnt">
+        <div id="tic-pre" class="sp active">
+          <div class="info-banner"><strong>Instant Action</strong> shows pre-match alerts. Cashed-out bets appear when the cashout happens <strong>before the game starts</strong> &mdash; in italic font for trader recognition.</div>
+          <div class="tickr-shell">
+            <div class="tickr-titlebar"><span style="color:#e8e8e8">https://action.dev.ppservices.local/instantaction.aspx</span><span style="margin-left:auto;color:#999">Search...</span></div>
+            <div class="tickr-tabs ia"><span class="tickr-tab active">Instant Action v3</span><span class="tickr-tab">Wager History</span><span class="tickr-tab">IA V3</span></div>
+            <div class="tickr-filters">
+              <span class="tickr-pill">CustomerID</span>
+              <span class="tickr-pill">Customer Type ▾</span>
+              <span class="tickr-pill">Bet Type ▾</span>
+              <span class="tickr-pill">Store ▾</span>
+              <span class="tickr-pill ok">Apply Filters</span>
+              <span class="tickr-pill">Board Market</span>
+              <span class="tickr-pill">Custom Filter</span>
+              <span class="tickr-pill danger">Clear All Filters</span>
+            </div>
+            <table class="tickr-tbl ia">
+              <thead><tr><th>Time</th><th>Customer</th><th>Name</th><th>Country</th><th>Limit Info</th><th>Risk</th><th>Description</th><th>WagerType</th></tr></thead>
+              <tbody id="ia-tbody"></tbody>
+            </table>
+          </div>
+          <div class="card" style="margin-top:10px"><div class="ct">How cashout alerts appear here</div>
+            <ul style="font-size:11px;color:var(--text2);line-height:1.7;padding-left:20px">
+              <li>Cashed-out alerts are rendered in <em>italic font</em> to distinguish them from "Bet Sold"</li>
+              <li>Description format: <code>Cashed Out $X.XX with Odd Y | description</code></li>
+              <li>The <strong>Odd</strong> shown is the new odd considered for cashout when the bet was closed</li>
+              <li>Only cashouts that happen <strong>before the game starts</strong> appear here &mdash; if the game has already kicked off, the alert routes to the live <strong>Bet Ticker</strong> instead</li>
+            </ul>
+          </div>
+        </div>
+        <div id="tic-live" class="sp">
+          <div class="info-banner"><strong>Bet Ticker</strong> shows live alerts. Cashed-out bets where <strong>Cashout Amount &gt; Risk</strong> are highlighted with the trader-configured colour (default: red row) for fast risk monitoring.</div>
+          <div class="tickr-shell ng">
+            <div class="tickr-tabs ng"><span class="tickr-tab">N-Game Admin</span><span class="tickr-tab active">N-Game Bet Ticker</span><span style="margin-left:auto;color:#aaa;font-size:11px">home &middot; games &middot; templates &middot; about &middot; logout</span></div>
+            <div class="tickr-controls">
+              <button class="tickr-btn">Connect</button>
+              <button class="tickr-btn ok">Disconnect</button>
+              <button class="tickr-btn">Clear</button>
+              <span style="margin-left:auto;display:flex;gap:8px;align-items:center">
+                <button class="tickr-btn" onclick="document.getElementById('bt-settings').style.display='block'">Settings</button>
+                <label style="font-size:11px;color:#ccc"><input type="checkbox"> Scrollable</label>
+                <label style="font-size:11px;color:#ccc"><input type="checkbox" checked> Show P &amp; L</label>
+              </span>
+            </div>
+            <div class="tickr-statusbar"><span class="tickr-conn">Connected</span><span style="margin-left:14px;color:#ccc">08/16 11:39:31 AM</span></div>
+            <table class="tickr-tbl ng">
+              <thead><tr><th>Status</th><th>Time</th><th>Customer</th><th>Risk / To Win</th><th>Game</th><th>Market</th><th>Odds</th><th>Net P/L</th></tr></thead>
+              <tbody id="bt-tbody"></tbody>
+            </table>
+          </div>
+          <!-- Settings dialog -->
+          <div id="bt-settings" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1000;background:#222;color:#eee;border:1px solid #555;border-radius:6px;padding:14px;width:480px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><strong>Bet Message Colors</strong><button class="tickr-btn" onclick="document.getElementById('bt-settings').style.display='none'">Close</button></div>
+            <div style="font-size:11px;line-height:1.7;color:#ccc">
+              <div style="display:grid;grid-template-columns:140px 1fr;gap:6px;align-items:center">
+                <span>Highlighted player border</span><input type="color" value="#dc2626" style="width:60px">
+                <span>Bet posted</span><span style="display:flex;gap:5px"><input type="color" value="#fbbf24" style="width:40px"><input type="color" value="#1f2937" style="width:40px"></span>
+                <span>Bet on hold</span><span style="display:flex;gap:5px"><input type="color" value="#fbbf24" style="width:40px"><input type="color" value="#1f2937" style="width:40px"></span>
+              </div>
+              <div style="border-top:1px solid #444;margin:10px 0;padding-top:10px"><strong>Cashout Setting</strong></div>
+              <div style="display:grid;grid-template-columns:140px 1fr;gap:6px;align-items:center">
+                <span style="color:#ef4444">Cashout Amount &gt; Risk</span><span></span>
+                <span>Background</span><input type="color" value="#3b82f6" style="width:60px" id="bt-co-bg" onchange="renderBetTicker()">
+                <span>Foreground</span><input type="color" value="#ef4444" style="width:60px" id="bt-co-fg" onchange="renderBetTicker()">
+              </div>
+              <div style="border-top:1px solid #444;margin:10px 0;padding-top:10px;font-size:10px;color:#999">Bet Amount Filter, Prop Type Filter, Assigned Trader Filter, Sport/League Filter &mdash; standard ticker filters apply alongside the cashout colour rule.</div>
+            </div>
+          </div>
+          <div class="card" style="margin-top:10px"><div class="ct">How cashout alerts appear here</div>
+            <ul style="font-size:11px;color:var(--text2);line-height:1.7;padding-left:20px">
+              <li>Status column shows <strong>Bet Cashed Out</strong> (red) vs <strong>Bet Sold</strong> (white) for fast scanning</li>
+              <li>Amount column shows <code>CashOut: $X.XX</code> in place of <code>To Win: $X.XX</code></li>
+              <li>Odds column shows <code>initial odd \ new odd</code> (e.g. <code>WAS -110\-150</code>)</li>
+              <li>If <strong>Cashout Amount &gt; Risk</strong> (customer cashed out at a profit), the row is highlighted with the trader-configured background and foreground colours from Settings</li>
+              <li>Only cashouts that happen <strong>after the game starts</strong> appear here &mdash; pre-kick-off cashouts route to <strong>Instant Action</strong> instead</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SPORTS=["Aussie rules","Baseball","Basketball","Boxing","Cricket","Football","Golf","Hockey","Soccer","Tennis"];
+const ALL_LEAGUES={Football:["AFL","CFL","NCAA","NFL","NFL Preseason","NFL Playoffs"],Soccer:["EPL","La Liga","MLS","Champions League"],Basketball:["NBA","NCAAMB","WNBA"],Baseball:["MLB"],Tennis:["ATP Tour","WTA Tour"]};
+const VIG_TABLE=[
+  {pos:"Losing",f:-0.95,t:-0.94,v:0.90},{pos:"Losing",f:-0.94,t:-0.93,v:0.75},{pos:"Losing",f:-0.93,t:-0.92,v:0.55},
+  {pos:"Losing",f:-0.92,t:-0.91,v:0.45},{pos:"Losing",f:-0.91,t:-0.90,v:0.35},{pos:"Losing",f:-0.90,t:-0.75,v:0.25},
+  {pos:"Losing",f:-0.75,t:-0.50,v:0.20},{pos:"Losing",f:-0.50,t:-0.40,v:0.175},{pos:"Losing",f:-0.40,t:-0.30,v:0.15},
+  {pos:"Losing",f:-0.30,t:-0.20,v:0.125},{pos:"Losing",f:-0.20,t:-0.10,v:0.10},{pos:"Losing",f:-0.10,t:-0.04,v:0.05},
+  {pos:"Losing",f:-0.04,t:-0.02,v:0.02},{pos:"Losing",f:-0.02,t:0,v:0.01},
+  {pos:"No change",f:0,t:0,v:0},
+  {pos:"Winning",f:0.01,t:0.02,v:0.01},{pos:"Winning",f:0.03,t:0.04,v:0.02},{pos:"Winning",f:0.05,t:0.19,v:0.05},
+  {pos:"Winning",f:0.20,t:0.29,v:0.08},{pos:"Winning",f:0.30,t:0.74,v:0.10},{pos:"Winning",f:0.75,t:0.89,v:0.08},
+  {pos:"Winning",f:0.90,t:0.91,v:0.05},{pos:"Winning",f:0.92,t:0.92,v:0.04},{pos:"Winning",f:0.93,t:0.93,v:0.03},
+  {pos:"Winning",f:0.95,t:0.94,v:0.02}
+];
+const VIG_DEF=VIG_TABLE.map(r=>({f:r.f,t:r.t,v:r.v}));
+let tpls=[{id:1,name:"Cashout MVP",adminFee:5,capOn:true,cap:90,minW:10,vigs:VIG_DEF.slice()},{id:2,name:"World Cup 2026",adminFee:4,capOn:true,cap:85,minW:5,vigs:VIG_DEF.slice()},{id:3,name:"Template New",adminFee:3,capOn:false,cap:0,minW:0,vigs:VIG_DEF.slice()}];
+let settings={};
+let boSport="Football",boEdit=false,boActiveTpl=0,calcTplIdx=0;
+let initOdds=[2.05,1.80],newOdds=[1.01,19.24],is3way=false,updating=false;
+let initMargin=0.0434,newMargin=0.0421;
+let wagers=[100,100];
+const SAMPLE_BETS={"NFL":[{team:"Chiefs -3",opp:"Ravens",io:1.83,no:1.55,io2:2.28,no2:2.55,wager:150,type:"Spread",isLive:true}],"EPL":[{team:"Arsenal",opp:"Chelsea",io:2.10,no:1.70,io2:1.78,no2:2.25,wager:80,type:"Moneyline",isLive:true}],"NBA":[{team:"Lakers ML",opp:"Celtics",io:2.20,no:1.65,io2:1.72,no2:2.35,wager:100,type:"Moneyline",isLive:true}],"La Liga":[{team:"Real Madrid",opp:"Barcelona",io:2.05,no:2.40,io2:1.82,no2:1.55,wager:60,type:"Moneyline",isLive:false}],"MLB":[{team:"Dodgers ML",opp:"Yankees",io:1.75,no:1.50,io2:2.20,no2:2.65,wager:120,type:"Moneyline",isLive:true}],"Champions League":[{team:"Man City",opp:"PSG",io:1.95,no:1.72,io2:1.98,no2:2.25,wager:90,type:"Moneyline",isLive:true}],"NFL Playoffs":[{team:"49ers ML",opp:"Eagles",io:2.05,no:1.77,io2:1.87,no2:2.15,wager:100,type:"Moneyline",isLive:true}]};
+
+function initSettings(){Object.keys(ALL_LEAGUES).forEach(s=>{if(!settings[s])settings[s]={};ALL_LEAGUES[s].forEach((l,i)=>{if(!settings[s][l])settings[s][l]={live:i%3!==1,pre:i%4!==2,tplIdx:i%tpls.length};});});}
+
+function switchMain(n){document.querySelectorAll(".mnb").forEach((b,i)=>b.classList.toggle("active",["bo","calc","site","rep","tic"][i]===n));document.querySelectorAll(".mp").forEach(p=>p.classList.remove("active"));document.getElementById("main-"+n).classList.add("active");if(n==="calc"){populateCalcTpl();renderAllOddsGrids();calcCO();}if(n==="site")buildSite();if(n==="rep")buildReports();if(n==="tic")buildTickers();}
+function switchBO(n){document.querySelectorAll("#main-bo .snb").forEach((b,i)=>b.classList.toggle("active",["settings","templates","customers","punter","audit"][i]===n));document.querySelectorAll("#main-bo .sp").forEach(p=>p.classList.remove("active"));document.getElementById("bo-"+n).classList.add("active");if(n==="templates"){buildTplList();renderTplEditor();}if(n==="customers")populateCustDropdowns();if(n==="punter")renderPunterDisable();if(n==="audit")renderAuditLog();}
+function switchSite(n){document.querySelectorAll("#main-site .snb").forEach((b,i)=>b.classList.toggle("active",["offering","widget","mybets","history","txn"][i]===n));document.querySelectorAll("#main-site .sp").forEach(p=>p.classList.remove("active"));document.getElementById("site-"+n).classList.add("active");buildSite();}
+function siteTab(el){document.querySelectorAll(".snt").forEach(t=>t.classList.remove("active"));el.classList.add("active");}
+function bsTab(el){document.querySelectorAll(".bsh-tab").forEach(t=>t.classList.remove("active"));el.classList.add("active");}
+function bsTab2(el){document.querySelectorAll("#site-mybets .bsh-tab").forEach(t=>t.classList.remove("active"));el.classList.add("active");}
+function bsSub(el){document.querySelectorAll(".bss").forEach(t=>t.classList.remove("active"));el.classList.add("active");}
+
+function buildBOSports(){document.getElementById("bo-sports-list").innerHTML=SPORTS.map(s=>`<div class="si${s===boSport?" active":""}" onclick="selectBOSport('${s}')">${s}</div>`).join("");}
+function selectBOSport(s){boSport=s;buildBOSports();buildBOTable();document.getElementById("bo-title").textContent=s;boEdit=false;document.getElementById("bo-edit-ctrl").innerHTML='<button class="btn btn-sm" onclick="boEnableEdit()">Edit</button>';}
+function buildBOTable(){const lgs=ALL_LEAGUES[boSport]||[boSport];if(!settings[boSport])settings[boSport]={};document.getElementById("bo-tbody").innerHTML=lgs.map(lg=>{if(!settings[boSport][lg])settings[boSport][lg]={live:true,pre:true,tplIdx:0};const cfg=settings[boSport][lg];const tplName=tpls[cfg.tplIdx]?tpls[cfg.tplIdx].name:"—";if(boEdit)return`<tr><td>${boSport}</td><td>${lg}</td><td>United States</td><td style="text-align:center"><label class="tog"><input type="checkbox"${cfg.live?" checked":""} onchange="settings['${boSport}']['${lg}'].live=this.checked"><span class="tsl"></span></label></td><td style="text-align:center"><label class="tog"><input type="checkbox"${cfg.pre?" checked":""} onchange="settings['${boSport}']['${lg}'].pre=this.checked"><span class="tsl"></span></label></td><td><select style="width:130px" onchange="settings['${boSport}']['${lg}'].tplIdx=tpls.findIndex(t=>t.name===this.value)">${tpls.map(t=>`<option${t.name===tplName?" selected":""}>${t.name}</option>`).join("")}</select></td></tr>`;return`<tr><td>${boSport}</td><td>${lg}</td><td>United States</td><td style="text-align:center"><span class="bdg ${cfg.live?"bg":"br"}">${cfg.live?"On":"Off"}</span></td><td style="text-align:center"><span class="bdg ${cfg.pre?"bb":"bgr"}">${cfg.pre?"On":"Off"}</span></td><td><span class="bdg bgr">${tplName}</span></td></tr>`;}).join("");}
+function boEnableEdit(){boEdit=true;document.getElementById("bo-edit-ctrl").innerHTML='<button class="btn btn-sm btn-primary" onclick="boSaveEdit()">Save</button><button class="btn btn-sm" onclick="boCancelEdit()">Cancel</button>';buildBOTable();}
+function boSaveEdit(){boEdit=false;document.getElementById("bo-edit-ctrl").innerHTML='<button class="btn btn-sm" onclick="boEnableEdit()">Edit</button>';buildBOTable();}
+function boCancelEdit(){boSaveEdit();}
+function buildTplList(){document.getElementById("bo-tpl-list").innerHTML=tpls.map((t,i)=>`<div class="tli${i===boActiveTpl?" active":""}" onclick="selectBoTpl(${i})">${t.name}${i===calcTplIdx?'<span class="bdg bb" style="font-size:9px;margin-left:4px">active</span>':""}</div>`).join("");}
+function selectBoTpl(i){boActiveTpl=i;buildTplList();renderTplEditor();}
+function boNewTpl(){tpls.push({id:Date.now(),name:"New template",adminFee:5,capOn:false,cap:0,minW:0,vigs:VIG_DEF.slice(0,8)});boActiveTpl=tpls.length-1;buildTplList();renderTplEditor();}
+function renderTplEditor(){const t=tpls[boActiveTpl];document.getElementById("bo-tpl-editor").innerHTML=`<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><input type="text" value="${t.name}" style="font-size:14px;font-weight:600;width:185px;border:1px solid transparent;background:none;color:var(--text);padding:3px 5px;border-radius:var(--radius)" onfocus="this.style.borderColor='var(--accent)';this.style.background='var(--bg3)'" onblur="this.style.borderColor='transparent';this.style.background='none'" oninput="tpls[boActiveTpl].name=this.value;buildTplList();populateCalcTpl()"><div style="display:flex;gap:5px"><button class="btn btn-sm btn-primary" onclick="buildTplList()">Save</button><button class="btn btn-sm" onclick="cloneTpl()">Clone</button><button class="btn btn-sm btn-danger" onclick="deleteTpl()">Delete</button></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div><div class="ct">Admin fee</div><div class="fr"><label>Admin fee (%)</label><input type="number" value="${t.adminFee}" min="0" max="20" step="0.1" style="width:60px" oninput="tpls[boActiveTpl].adminFee=+this.value;if(boActiveTpl===calcTplIdx)calcCO()"></div><div style="font-size:11px;color:var(--text3);margin-bottom:8px">Applied when price has not changed</div><div class="ct">Max cashout</div><div class="fr"><label>Enable cap</label><label class="tog"><input type="checkbox"${t.capOn?" checked":""} onchange="tpls[boActiveTpl].capOn=this.checked;if(boActiveTpl===calcTplIdx)calcCO()"><span class="tsl"></span></label></div><div class="fr"><label>Return % cap</label><input type="number" value="${t.cap}" min="0" max="100" style="width:60px" oninput="tpls[boActiveTpl].cap=+this.value;if(boActiveTpl===calcTplIdx)calcCO()"></div><div class="fr"><label>Min wager ($)</label><input type="number" value="${t.minW}" min="0" style="width:60px"></div></div><div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div class="ct" style="margin:0">Vig rate table</div><button class="btn btn-sm" onclick="addVig()" style="font-size:10px">+ Row</button></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr 22px;gap:3px;margin-bottom:4px"><span style="font-size:10px;color:var(--text3)">From%</span><span style="font-size:10px;color:var(--text3)">Up to%</span><span style="font-size:10px;color:var(--text3)">Vig%</span><span></span></div><div id="vig-rows">${t.vigs.slice(0,12).map((r,i)=>`<div class="vr"><input type="number" value="${(r.f*100).toFixed(0)}" step="1" oninput="tpls[boActiveTpl].vigs[${i}].f=this.value/100;if(boActiveTpl===calcTplIdx)calcCO()"><input type="number" value="${(r.t*100).toFixed(0)}" step="1" oninput="tpls[boActiveTpl].vigs[${i}].t=this.value/100;if(boActiveTpl===calcTplIdx)calcCO()"><input type="number" value="${(r.v*100).toFixed(1)}" step="0.1" min="0" max="100" oninput="tpls[boActiveTpl].vigs[${i}].v=this.value/100;if(boActiveTpl===calcTplIdx)calcCO()"><button class="rmv" onclick="removeVig(${i})">x</button></div>`).join("")}</div></div></div></div>`;}
+function addVig(){tpls[boActiveTpl].vigs.push({f:0,t:0,v:0});renderTplEditor();}
+function removeVig(i){tpls[boActiveTpl].vigs.splice(i,1);renderTplEditor();}
+function cloneTpl(){const t=JSON.parse(JSON.stringify(tpls[boActiveTpl]));t.name+=" (copy)";t.id=Date.now();tpls.push(t);boActiveTpl=tpls.length-1;buildTplList();renderTplEditor();}
+function deleteTpl(){if(tpls.length<=1)return;tpls.splice(boActiveTpl,1);boActiveTpl=Math.max(0,boActiveTpl-1);buildTplList();renderTplEditor();}
+function populateCustDropdowns(){const o=tpls.map(t=>`<option>${t.name}</option>`).join("");const s=document.getElementById("cust-tpl-sel");if(s)s.innerHTML=o;}
+
+/* ODDS ENGINE */
+function getTI(odds){return odds.reduce((s,o)=>s+1/o,0);}
+function targetTI(mp){return 1+mp/100;}
+function adjustOdds(ci,nv,odds,mp){if(updating)return;updating=true;const ti=targetTI(mp);odds[ci]=Math.max(1.01,nv);const rem=ti-1/odds[ci];const oc=odds.length-1;if(oc>0){const pe=rem/oc;for(let i=0;i<odds.length;i++){if(i===ci)continue;odds[i]=Math.max(1.01,parseFloat((pe>0?1/pe:99).toFixed(3)));}}updating=false;}
+function onInitOddChange(idx,val){adjustOdds(idx,parseFloat(val)||1.5,initOdds,initMargin*100);renderOddsGrid("init",initOdds,initMargin*100,idx);calcCO();}
+function onNewOddChange(idx,val){adjustOdds(idx,parseFloat(val)||1.5,newOdds,newMargin*100);renderOddsGrid("new",newOdds,newMargin*100,idx);calcCO();}
+function onMarginChange(w){if(w==="init"){initMargin=(parseFloat(document.getElementById("init_margin").value)||4.34)/100;document.getElementById("init_ti_label").textContent=(1+initMargin).toFixed(7);adjustOdds(0,initOdds[0],initOdds,initMargin*100);renderOddsGrid("init",initOdds,initMargin*100,-1);}else{newMargin=(parseFloat(document.getElementById("new_margin").value)||4.21)/100;document.getElementById("new_ti_label").textContent=(1+newMargin).toFixed(7);adjustOdds(0,newOdds[0],newOdds,newMargin*100);renderOddsGrid("new",newOdds,newMargin*100,-1);}calcCO();}
+function onMktChange(){is3way=document.getElementById("c_mkt").value==="3";if(is3way&&initOdds.length===2){initOdds=[2.40,3.40,1.63];newOdds=[5.60,4.00,1.625];wagers=[100,100,100];}else if(!is3way&&initOdds.length===3){initOdds=[2.05,1.80];newOdds=[1.01,19.24];wagers=[100,100];}renderAllOddsGrids();calcCO();}
+function renderAllOddsGrids(){renderOddsGrid("init",initOdds,initMargin*100,-1);renderOddsGrid("new",newOdds,newMargin*100,-1);renderWagerInputs();}
+const SEL2=["Selection 1","Selection 2"],SEL3=["Home","Away","Draw"];
+function renderOddsGrid(which,odds,marginPct,activeIdx){const ti=getTI(odds);const tiOk=Math.abs(ti-targetTI(marginPct))<0.001;const labels=odds.length===3?SEL3:SEL2;const grid=document.getElementById(which+"-odds-grid");if(!grid)return;grid.innerHTML=odds.map((o,i)=>{const prob=(1/o*100).toFixed(2);const us=decToUS(o);const isE=i===activeIdx;return`<div class="odds-row ${odds.length===3?"three-way":"two-way"}${isE?" edited":""}"><span class="odds-label">${labels[i]}</span><input type="number" value="${o.toFixed(3)}" step="0.001" min="1.01" style="width:70px" oninput="${which==="init"?"onInitOddChange":"onNewOddChange"}(${i},+this.value)"><span class="odds-us${isE?" edited":""}">${us}</span><div class="prob-bar-wrap"><div class="prob-bar${isE?" edited":""}" style="width:${Math.min(100,parseFloat(prob))}%"></div></div><span class="odds-prob${isE?" edited":""}">${prob}%</span></div>`;}).join("");const tiEl=document.getElementById(which+"_ti_check");if(tiEl){tiEl.textContent=ti.toFixed(7);tiEl.className=tiOk?"implied-ok":"implied-warn";}}
+function renderWagerInputs(){const labels=is3way?SEL3:SEL2;const el=document.getElementById("wager-inputs");if(!el)return;el.innerHTML=labels.map((l,i)=>`<div class="fr"><label style="min-width:100px">${l} wager</label><span style="font-family:'DM Mono',monospace;font-size:12px;margin-right:3px;color:var(--text3)">$</span><input type="number" value="${wagers[i]||100}" step="1" min="1" style="width:65px" oninput="wagers[${i}]=+this.value;calcCO()"></div>`).join("");}
+function decToUS(d){if(!d||d<=1)return"";return d>=2?"+"+Math.round((d-1)*100):"-"+Math.round(100/(d-1));}
+
+/* VIG LOOKUP */
+function lookupVig(bc,vigs){if(Math.abs(bc)<0.001)return{v:0,rowIdx:14};for(let i=0;i<vigs.length;i++){const r=vigs[i];const lo=Math.min(r.f,r.t),hi=Math.max(r.f,r.t);if(bc>=lo&&bc<=hi)return{v:r.v,rowIdx:i};}return bc<-0.94?{v:0.90,rowIdx:0}:{v:0.02,rowIdx:vigs.length-1};}
+
+/* CORE CALC PER SELECTION */
+function calcSelection(io,no,wager,newTI,tpl,isLive){
+  if(!isLive){const co=wager*(1-tpl.adminFee/100);return{co,bc:0,vig:0,tp:1/io,tpo:io,profit:co-wager,potReturn:wager*io,vigRowIdx:-1,capped:false};}
+  const tp=(1/no)/newTI;
+  const tpo=no*newTI;
+  const isWin=no<io;
+  const bc=isWin?((wager*io*tp-wager)/((io-1)*wager)):((wager*io*tp-wager)/wager);
+  const {v:vig,rowIdx:vigRowIdx}=lookupVig(bc,tpl.vigs);
+  const co=(io/tpo)*wager*(1-vig);
+  const potReturn=wager*io;
+  return{co,bc,vig,tp,tpo,isWin,potReturn,profit:co-wager,vigRowIdx,capped:false};}
+
+/* MAIN CALC */
+function calcCO(){
+  const t=tpls[calcTplIdx];
+  const state=document.getElementById("c_state").value;
+  const isLive=state!=="pre";
+  document.getElementById("new_odds_card").style.display=isLive?"block":"none";
+  const newTI=isLive?getTI(newOdds):getTI(initOdds);
+  const initTI=getTI(initOdds);
+  const n=initOdds.length;
+  const results=initOdds.map((io,i)=>{const no=isLive?newOdds[i]:io;return calcSelection(io,no,wagers[i]||100,newTI,t,isLive);});
+  const labels=n===3?SEL3:SEL2;
+  renderCOResults(results,labels,wagers,initOdds,newOdds,newTI,initTI,t,isLive);
+  if(isLive) renderVigTable(results,t);
+  renderBreakdown(results,labels,initOdds,newOdds,newTI,initTI,t,isLive);
+  const bar=document.getElementById("calc-bar");
+  if(bar)bar.innerHTML=`<span>Template:</span><strong>${t.name}</strong><span style="color:var(--text2)">Admin: ${t.adminFee}% &middot; Cap: ${t.capOn?t.cap+"%":"off"} &middot; Init margin: ${((initTI-1)*100).toFixed(2)}%${isLive?" &middot; New margin: "+((newTI-1)*100).toFixed(2)+"%":""}</span>`;
+}
+
+function populateCalcTpl(){const sel=document.getElementById("c_tpl");if(!sel)return;sel.innerHTML=tpls.map((t,i)=>`<option value="${i}">${t.name}</option>`).join("");sel.value=calcTplIdx;const t=tpls[calcTplIdx];const el=document.getElementById("tpl-params");if(el)el.innerHTML=`Admin fee: <strong>${t.adminFee}%</strong> &nbsp;&middot;&nbsp; Cap: <strong>${t.capOn?t.cap+"%":"Off"}</strong> &nbsp;&middot;&nbsp; Min wager: <strong>$${t.minW}</strong>`;}
+function onTplChange(){calcTplIdx=parseInt(document.getElementById("c_tpl").value);const t=tpls[calcTplIdx];const el=document.getElementById("tpl-params");if(el)el.innerHTML=`Admin fee: <strong>${t.adminFee}%</strong> &nbsp;&middot;&nbsp; Cap: <strong>${t.capOn?t.cap+"%":"Off"}</strong> &nbsp;&middot;&nbsp; Min wager: <strong>$${t.minW}</strong>`;calcCO();}
+
+function renderCOResults(results,labels,wagers,initOdds,newOdds,newTI,initTI,t,isLive){
+  const el=document.getElementById("co-results");if(!el)return;
+  const n=results.length;
+  const totalWager=wagers.slice(0,n).reduce((s,w)=>s+(w||100),0);
+  const totalCO=results.reduce((s,r)=>s+r.co,0);
+  const totalProfit=totalCO-totalWager;
+  let html=`<div class="co-section" style="margin-bottom:10px">
+    <div class="co-section-hdr">Cash out results &mdash; ${t.name}</div>
+    <table class="co-table">
+      <thead><tr><th>Selection</th><th>Wager</th><th>Pot. return</th><th>Init odd</th>${isLive?`<th>New odd</th><th>True prob odd</th><th>Bet change</th><th>Vig</th>`:"<th>Admin fee</th>"}<th>Cash out offer</th><th>Profit / Loss</th></tr></thead>
+      <tbody>`;
+  results.forEach((r,i)=>{
+    const w=wagers[i]||100;
+    const profitCls=r.profit>=0?"profit-pos":"profit-neg";
+    const profitSign=r.profit>=0?"+":"";
+    html+=`<tr class="${i===0?"highlight":""}">
+      <td class="label">${labels[i]}</td>
+      <td>$${w.toFixed(2)}</td>
+      <td>$${r.potReturn.toFixed(2)}</td>
+      <td style="font-family:'DM Mono',monospace">${initOdds[i].toFixed(3)} <span style="color:var(--text3);font-size:10px">${decToUS(initOdds[i])}</span></td>
+      ${isLive?`<td style="font-family:'DM Mono',monospace">${newOdds[i].toFixed(3)} <span style="color:var(--text3);font-size:10px">${decToUS(newOdds[i])}</span></td><td style="font-family:'DM Mono',monospace">${r.tpo.toFixed(4)}</td><td class="${r.bc>0?"profit-pos":r.bc<0?"profit-neg":""}" style="font-family:'DM Mono',monospace">${(r.bc*100).toFixed(2)}%</td><td style="font-family:'DM Mono',monospace">${(r.vig*100).toFixed(1)}%</td>`:`<td>${t.adminFee}%</td>`}
+      <td class="offer" style="font-weight:700;font-family:'DM Mono',monospace;color:var(--accent)">$${r.co.toFixed(2)}</td>
+      <td class="${profitCls}" style="font-family:'DM Mono',monospace">${profitSign}$${Math.abs(r.profit).toFixed(2)}</td>
+    </tr>`;
+  });
+  html+=`<tr class="totals-row"><td class="label" style="color:var(--accent)">Total</td><td>$${totalWager.toFixed(2)}</td><td>$${results.reduce((s,r)=>s+r.potReturn,0).toFixed(2)}</td><td colspan="${isLive?5:2}"></td><td style="font-weight:700;color:var(--accent);font-family:'DM Mono',monospace">$${totalCO.toFixed(2)}</td><td class="${totalProfit>=0?"profit-pos":"profit-neg"}" style="font-family:'DM Mono',monospace">${totalProfit>=0?"+":""}$${Math.abs(totalProfit).toFixed(2)}</td></tr>`;
+  html+=`</tbody></table></div>`;
+  el.innerHTML=html;}
+
+function renderVigTable(results,t){
+  const el=document.getElementById("vig-tbody");if(!el)return;
+  const activeRows=new Set(results.map(r=>r.vigRowIdx));
+  el.innerHTML=VIG_TABLE.map((row,i)=>{
+    const lo=(row.f*100).toFixed(0);const hi=(row.t*100).toFixed(0);
+    const isActive=activeRows.has(i);
+    let rowCls="";
+    if(isActive)rowCls=row.pos==="Winning"?"vig-active":"vig-active-red";
+    else if(row.pos==="Losing")rowCls="vig-losing";
+    else if(row.pos==="Winning")rowCls="vig-winning";
+    else rowCls="vig-nochange";
+    return`<tr class="${rowCls}"><td>${row.pos}</td><td>${lo}%</td><td>${hi}%</td><td>${(row.v*100).toFixed(1)}%${isActive?" ◀":""}</td></tr>`;
+  }).join("");}
+
+function renderBreakdown(results,labels,initOdds,newOdds,newTI,initTI,t,isLive){
+  const el=document.getElementById("r_steps");if(!el)return;
+  if(!isLive){el.innerHTML=`<div class="slbl">Pre-event, no line move</div><div class="fb"><strong>Cashout = Wager &times; (1 &minus; Admin fee)</strong><br>Wager &times; (1 &minus; ${t.adminFee}%) &rarr; <strong style="color:var(--green)">$${results[0].co.toFixed(2)}</strong></div>`;return;}
+  let html=`<div style="margin-bottom:7px"><div class="slbl">1. Market margins</div><div class="fb"><strong>Init TI:</strong> ${initOdds.map(o=>"1/"+o.toFixed(3)).join(" + ")} = ${initTI.toFixed(6)} &rarr; <strong>${((initTI-1)*100).toFixed(2)}%</strong><br><strong>New TI:</strong> ${newOdds.map(o=>"1/"+o.toFixed(3)).join(" + ")} = ${newTI.toFixed(6)} &rarr; <strong>${((newTI-1)*100).toFixed(2)}%</strong></div></div>`;
+  results.forEach((r,i)=>{
+    if(!r.isWin&&r.bc===0)return;
+    html+=`<div style="margin-bottom:6px"><div class="slbl">${labels[i]} &mdash; ${r.bc>0?"Winning":"Losing"}</div><div class="fb">True prob odd: ${newOdds[i].toFixed(3)} &times; ${newTI.toFixed(5)} = <strong>${r.tpo.toFixed(4)}</strong><br>True prob: (1/${newOdds[i].toFixed(3)}) / ${newTI.toFixed(5)} = <strong>${(r.tp*100).toFixed(2)}%</strong><br>% bet change: <strong>${(r.bc*100).toFixed(2)}%</strong> &rarr; vig: <strong>${(r.vig*100).toFixed(1)}%</strong><br>Cashout: (${initOdds[i].toFixed(3)}/${r.tpo.toFixed(4)}) &times; ${wagers[i]||100} &times; (1&minus;${(r.vig*100).toFixed(1)}%) = <strong style="color:var(--green)">$${r.co.toFixed(2)}</strong></div></div>`;
+  });
+  el.innerHTML=html;}
+
+/* SITE V3 — desktop + mobile end-to-end experience adapted to scope v0.7 */
+let viewport="desktop"; // desktop | mobile
+let sitePage="sports"; // sports | mybets | history | account
+let mbSubTab="pending"; // pending | graded | cashout
+let cashedBets={}; // map of bet idx → cashout amount, marks bets as cashed in this session
+function setViewport(m){viewport=m;document.querySelectorAll(".vp-btn").forEach(b=>b.classList.toggle("active",b.textContent.trim().toLowerCase()===m));renderSite();}
+function setSitePage(p){sitePage=p;renderSite();}
+function setMbSubTab(t){mbSubTab=t;renderSite();}
+function toggleSimDrawer(){document.getElementById("sim-drawer").classList.toggle("open");}
+
+const SITE_STATE_DESC={
+  available:"Live cashout offer. Amount updates with market price. Click to start the validation flow.",
+  suspended:"No price available. Button locked. Customer cannot cash out until market reopens.",
+  confirm:"Show Confirmation ON: button shows the amount in light green for 5 seconds. Customer must click again to confirm.",
+  changed_up:"Price moved UP during validation. Message shown, new higher amount highlighted in green. Cashout proceeds at the new amount automatically.",
+  changed_down:"Price moved DOWN during validation. Two paths: Accept Changes ON → proceed at lower amount; OFF → flow interrupted, customer re-confirms.",
+  susp_during_val:"Market suspended mid-validation. Message for 3 seconds, button reverts to Suspended.",
+  cashed:"Cashout completed. Success message briefly, then the bet card moves from open to graded.",
+  empty:"No bets eligible. Empty state message shown."
+};
+
+const SPORTS_LIST=[
+  {name:"Soccer",co:true,leagues:["EPL","La Liga","MLS","Champions League","World Cup 2026"]},
+  {name:"Football",co:true,leagues:["NFL","NCAA","CFL"]},
+  {name:"Basketball",co:true,leagues:["NBA","WNBA","NCAAMB"]},
+  {name:"Baseball",co:true,leagues:["MLB","KBO"]},
+  {name:"Hockey",co:true,leagues:["NHL"]},
+  {name:"Tennis",co:false,leagues:["ATP","WTA"]},
+  {name:"Golf",co:false,leagues:["PGA","LPGA"]}
+];
+
+const SPORTS_OFFERING=[
+  {league:"NFL",time:"Sun, 1:00pm ET",home:"Cardinals",away:"Falcons",coAvail:true,
+    spread:["+6 (+100)","-6 (-110)"],ml:["+238","-285"],total:["O 51 (-118)","U 51 (-102)"]},
+  {league:"NFL",time:"Sun, 4:25pm ET",home:"Colts",away:"Jaguars",coAvail:true,
+    spread:["-5 (-110)","+5 (-110)"],ml:["-150","+130"],total:["O 47 (-105)","U 47 (-115)"]},
+  {league:"NBA",time:"Tue, 8:00pm ET",home:"Lakers",away:"Celtics",coAvail:true,
+    spread:["-2 (-110)","+2 (-110)"],ml:["-110","-110"],total:["O 218.5","U 218.5"]},
+  {league:"EPL",time:"Sat, 12:30pm ET",home:"Arsenal",away:"Chelsea",coAvail:true,
+    spread:["+0.5 (-115)","-0.5 (-105)"],ml:["+185","+165"],total:["O 2.5 (-110)","U 2.5 (-110)"]}
+];
+
+const MY_BETS=[
+  {id:"4537941621",team:"49ers ML",opp:"Chiefs",league:"NFL",sport:"Football",risk:100,toWin:78.85,io:1.79,co:75.88,coUp:88.95,coDn:72.40,isLive:true,placed:"10/12/25 3:15 PM"},
+  {id:"4537941622",team:"Lakers -3",opp:"Celtics",league:"NBA",sport:"Basketball",risk:50,toWin:45.45,io:1.91,co:38.20,coUp:42.10,coDn:34.50,isLive:true,placed:"10/13/25 8:02 PM"},
+  {id:"4537941623",team:"Arsenal",opp:"Chelsea",league:"EPL",sport:"Soccer",risk:75,toWin:138.75,io:2.85,co:92.40,coUp:108.50,coDn:78.20,isLive:false,placed:"10/14/25 11:30 AM"}
+];
+
+const GRADED_BETS=[
+  {id:"4537941617",team:"Cowboys ML",opp:"Eagles",league:"NFL",sport:"Football",risk:200,result:"cashed",coAmt:235.40,placed:"10/01/25",graded:"10/02/25"},
+  {id:"4537941618",team:"Real Madrid",opp:"Barcelona",league:"La Liga",sport:"Soccer",risk:50,result:"won",toWin:45,placed:"10/05/25",graded:"10/06/25"},
+  {id:"4537941619",team:"Yankees -1.5",opp:"Red Sox",league:"MLB",sport:"Baseball",risk:25,result:"lost",placed:"10/08/25",graded:"10/08/25"},
+  {id:"4537941620",team:"Heat ML",opp:"Magic",league:"NBA",sport:"Basketball",risk:30,result:"cashed",coAmt:42.15,placed:"10/10/25",graded:"10/10/25"}
+];
+
+function renderSite(){
+  const stage=document.getElementById("site-stage");if(!stage)return;
+  // update state-desc
+  const sd=document.getElementById("state-desc");
+  if(sd){const st=document.getElementById("sim_state").value;sd.textContent=SITE_STATE_DESC[st]||"";}
+  if(viewport==="desktop")stage.innerHTML=renderDesktop();
+  else stage.innerHTML=renderMobile();
+}
+
+function renderDesktop(){
+  return `<div class="device desktop">
+    <div class="dh">
+      <div class="dh-logo">BET<span class="dot">●</span>ONLINE</div>
+      <div style="font-size:11px;color:#bbb;margin-left:8px;font-family:'DM Mono',monospace">SPORTS · LIVE BETTING · CASINO · RACEBOOK · POKER</div>
+      <div class="dh-balance"><strong>$1,240.00</strong> Balance</div>
+      <div class="dh-user">E.MORENO ▾</div>
+    </div>
+    <div class="dnav">
+      <div class="dnav-item${sitePage==='sports'?' active':''}" onclick="setSitePage('sports')">Sports</div>
+      <div class="dnav-item">Live Betting</div>
+      <div class="dnav-item${sitePage==='mybets'?' active':''}" onclick="setSitePage('mybets')">My Bets</div>
+      <div class="dnav-item${sitePage==='history'?' active':''}" onclick="setSitePage('history')">Bet History</div>
+      <div class="dnav-item${sitePage==='account'?' active':''}" onclick="setSitePage('account')">Account</div>
+      <div class="dnav-item">Promotions</div>
+    </div>
+    <div class="dgrid">
+      <div class="dleft">${renderLeftSidebar()}</div>
+      <div class="dmain">${renderPageContent()}</div>
+      <div class="dright">${renderRightSidebar()}</div>
+    </div>
+  </div>`;
+}
+
+function renderMobile(){
+  const showNew=document.getElementById("newBadge")&&document.getElementById("newBadge").checked;
+  return `<div class="device mobile">
+    <div class="device-inner">
+      <div class="mh">
+        <div class="mh-logo">BET<span class="dot">●</span>ONLINE</div>
+        <div class="mh-balance"><strong>$1,240.00</strong>Balance</div>
+      </div>
+      <div class="msubnav">
+        <div class="msn-item${sitePage==='sports'?' active':''}" onclick="setSitePage('sports')">Sports</div>
+        <div class="msn-item">Live</div>
+        <div class="msn-item${sitePage==='mybets'?' active':''}" onclick="setSitePage('mybets')">My Bets ${showNew && sitePage!=='mybets'?'<span class="new-badge" style="margin-left:4px">NEW</span>':''}</div>
+        <div class="msn-item${sitePage==='history'?' active':''}" onclick="setSitePage('history')">History</div>
+        <div class="msn-item${sitePage==='account'?' active':''}" onclick="setSitePage('account')">Account</div>
+      </div>
+      <div class="mscroll">${renderPageContent(true)}</div>
+      <div class="mnav">
+        <div class="mnav-item${sitePage==='sports'?' active':''}" onclick="setSitePage('sports')"><span class="mnav-icon">🏆</span>Sports</div>
+        <div class="mnav-item"><span class="mnav-icon">●</span>Live</div>
+        <div class="mnav-item${sitePage==='mybets'?' active':''}" onclick="setSitePage('mybets')"><span class="mnav-icon">🎫</span>My Bets</div>
+        <div class="mnav-item${sitePage==='history'?' active':''}" onclick="setSitePage('history')"><span class="mnav-icon">📋</span>History</div>
+        <div class="mnav-item${sitePage==='account'?' active':''}" onclick="setSitePage('account')"><span class="mnav-icon">👤</span>Account</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderLeftSidebar(){
+  return `<div class="dleft-title">Sports</div>${SPORTS_LIST.map(s=>`<div class="dleft-item${s.name==='Football'?' active':''}">${s.name}${s.co?'<span class="co-mini">CO</span>':''}</div>`).join("")}
+    <div class="dleft-title" style="margin-top:14px">Quick links</div>
+    <div class="dleft-item">Today's events</div>
+    <div class="dleft-item">Live now</div>
+    <div class="dleft-item">Upcoming</div>`;
+}
+
+function renderRightSidebar(){
+  // Show pending bet with cashout offer (the "primary v1 surface" entry point)
+  return `<div class="dright-tabs">
+      <div class="drt">Bet Slip</div>
+      <div class="drt active">My Bets <span style="background:var(--site-red);color:#fff;font-size:9px;padding:1px 4px;border-radius:2px;margin-left:3px">${MY_BETS.length}</span></div>
+      <div class="drt">Cash Out</div>
+    </div>
+    <div class="dright-body">
+      <div style="display:flex;background:#000;padding:6px;gap:4px;margin-bottom:8px;border-radius:4px">
+        <button class="bss active" style="flex:1">Pending</button>
+        <button class="bss" style="flex:1">Graded</button>
+        <button class="bss" style="flex:1">Cash Out</button>
+      </div>
+      ${renderPendingBetCards(2)}
+    </div>`;
+}
+
+function renderPendingBetCards(limit){
+  return MY_BETS.slice(0,limit).map((b,i)=>renderBetCard(b,i)).join("");
+}
+
+function renderBetCard(b,i){
+  if(cashedBets[b.id]){
+    return `<div class="bcv3">
+      <div class="bcv3-head"><span class="bcv3-team">${b.isLive?'<span class="live-pill">LIVE</span>':''}${b.team}</span><span class="co-amt-pill" style="background:#4a90e2"><span class="co-icon-red">CO</span> $${cashedBets[b.id].toFixed(2)}</span></div>
+      <div class="bcv3-status cashed"><span><span class="co-icon-red">CO</span> Cashed Out</span><span style="color:#22c55e;font-weight:700">+$${cashedBets[b.id].toFixed(2)}</span></div>
+    </div>`;
+  }
+  const state=document.getElementById("sim_state")?document.getElementById("sim_state").value:"available";
+  const showConf=document.getElementById("showConfirm")&&document.getElementById("showConfirm").checked;
+  const acceptCh=document.getElementById("acceptChanges")&&document.getElementById("acceptChanges").checked;
+  const co="$"+b.co.toFixed(2);
+  const coUp="$"+b.coUp.toFixed(2);
+  const coDn="$"+b.coDn.toFixed(2);
+  // Only the first card reflects the simulator state
+  let actionHtml="";
+  if(i===0){
+    if(state==="available")actionHtml=`<button class="co-btn" onclick="doCashoutV3(${i},'${co}')">Cash Out <strong>${co}</strong></button>`;
+    else if(state==="suspended")actionHtml=`<button class="co-btn susp"><span style="font-size:14px">🔒</span> Suspended</button>`;
+    else if(state==="confirm")actionHtml=`<button class="co-btn co-confirm-btn" onclick="cashoutComplete(${i},'${co}')">Confirm <strong>${co}</strong> ▶</button><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:4px">Click to confirm · 5 sec</div>`;
+    else if(state==="changed_up")actionHtml=`<div class="co-msg" style="background:#dcfce7;color:#065f46;border:1px solid #86efac;font-size:10px;padding:4px 7px;border-radius:3px;margin-bottom:5px">▲ The Cash Out return has changed</div><button class="co-btn changed-up">Cash Out <span class="amt-highlight-up">${coUp}</span></button>`;
+    else if(state==="changed_down")actionHtml=`<div class="co-msg warn" style="font-size:10px;padding:4px 7px;border-radius:3px;margin-bottom:5px">▼ The Cash Out return has changed</div><button class="co-btn changed-down">Cash Out <span class="amt-highlight-down">${coDn}</span></button><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:4px">${acceptCh?'Auto-proceeding at lower amount':'Awaiting your confirmation'}</div>`;
+    else if(state==="susp_during_val")actionHtml=`<div class="co-msg susp" style="font-size:10px;padding:4px 7px;border-radius:3px;margin-bottom:5px">The Cash Out was suspended</div><button class="co-btn susp"><span style="font-size:14px">🔒</span> Suspended</button>`;
+    else if(state==="cashed")actionHtml=`<div class="co-success" style="padding:8px;font-size:11px">✓ Cashed Out · <strong>${co}</strong> returned</div>`;
+    else if(state==="empty")return""; // empty handled elsewhere
+  } else {
+    actionHtml=`<button class="co-btn" onclick="doCashoutV3(${i},'${co}')">Cash Out <strong>${co}</strong></button>`;
+  }
+  return `<div class="bcv3" id="bcv3-${i}">
+    <div class="bcv3-head">
+      <span class="bcv3-team">${b.isLive?'<span class="live-pill">LIVE</span>':''}${b.team}</span>
+      <span class="co-icon-yellow">CO</span>
+    </div>
+    <div class="bcv3-meta">
+      <div class="bcv3-meta-row"><span>Ticket #</span><span>${b.id}</span></div>
+      <div class="bcv3-meta-row"><span>${b.opp ? 'vs '+b.opp : b.league}</span><span>${b.sport} · ${b.league}</span></div>
+      <div class="bcv3-meta-row"><span>Placed</span><span>${b.placed}</span></div>
+    </div>
+    <div class="bcv3-amts"><span>Risk: $${b.risk}</span><span>To Win: $${b.toWin.toFixed(2)}</span></div>
+    <div class="bcv3-action">${actionHtml}</div>
+  </div>`;
+}
+
+function doCashoutV3(idx,amount){
+  const showConf=document.getElementById("showConfirm")&&document.getElementById("showConfirm").checked;
+  // For first card, switch sim state to confirm (if showConf) or cashed
+  if(idx===0){
+    if(showConf){document.getElementById("sim_state").value="confirm";}
+    else{cashedBets[MY_BETS[0].id]=MY_BETS[0].co;}
+  } else {
+    cashedBets[MY_BETS[idx].id]=MY_BETS[idx].co;
+  }
+  renderSite();
+}
+function cashoutComplete(idx,amount){
+  cashedBets[MY_BETS[idx].id]=MY_BETS[idx].co;
+  document.getElementById("sim_state").value="available";
+  renderSite();
+}
+
+function renderPageContent(isMobile){
+  if(sitePage==="sports")return renderSportsPage(isMobile);
+  if(sitePage==="mybets")return renderMyBetsPage(isMobile);
+  if(sitePage==="history")return renderHistoryPage(isMobile);
+  if(sitePage==="account")return renderAccountPage(isMobile);
+  return "";
+}
+
+function renderSportsPage(isMobile){
+  const showNew=document.getElementById("newBadge")&&document.getElementById("newBadge").checked;
+  const newBanner=showNew?`<div class="cookie-row"><span>🎉 New: Cash Out is now available — settle eligible bets early. Look for the <span class="co-icon-yellow" style="margin:0 3px">CO</span> icon.</span><span style="cursor:pointer;color:#92400e;font-weight:600" onclick="document.getElementById('newBadge').checked=false;renderSite()">Got it ×</span></div>`:"";
+  const rowCls=isMobile?"event-row mobile-row":"event-row";
+  const cards=SPORTS_OFFERING.map(g=>{
+    return `<div class="event-card">
+      <div class="event-head">
+        <span class="league">${g.league} <span class="co-icon-yellow">CO</span></span>
+        <span style="font-family:'DM Mono',monospace">${g.time}</span>
+      </div>
+      <div class="event-mkts-row"><div>Match</div><div>Spread</div><div>Money</div><div>Total</div></div>
+      <div class="${rowCls}"><span class="event-team">${g.home}</span><div class="event-px"><small>${g.spread[0].split(' ')[0]}</small>${g.spread[0].split(' ')[1]||''}</div><div class="event-px">${g.ml[0]}</div><div class="event-px"><small>${g.total[0].split(' ')[0]}</small>${g.total[0].split(' ').slice(1).join(' ')||''}</div></div>
+      <div class="${rowCls}"><span class="event-team">${g.away}</span><div class="event-px"><small>${g.spread[1].split(' ')[0]}</small>${g.spread[1].split(' ')[1]||''}</div><div class="event-px">${g.ml[1]}</div><div class="event-px"><small>${g.total[1].split(' ')[0]}</small>${g.total[1].split(' ').slice(1).join(' ')||''}</div></div>
+    </div>`;
+  }).join("");
+  return `<h2>Football · NFL</h2>${newBanner}${cards}`;
+}
+
+function renderMyBetsPage(isMobile){
+  const tabs=`<div style="display:flex;background:#fff;border-radius:5px;border:1px solid var(--border);margin-bottom:8px">
+    <button class="bss${mbSubTab==='pending'?' active':''}" style="flex:1;border-radius:0" onclick="setMbSubTab('pending')">Pending</button>
+    <button class="bss${mbSubTab==='graded'?' active':''}" style="flex:1;border-radius:0" onclick="setMbSubTab('graded')">Graded</button>
+    <button class="bss${mbSubTab==='cashout'?' active':''}" style="flex:1;border-radius:0" onclick="setMbSubTab('cashout')">Cash Out</button>
+  </div>`;
+  let body="";
+  if(mbSubTab==="pending"){
+    body=MY_BETS.map((b,i)=>renderBetCard(b,i)).join("")||'<div class="empty-st">No pending bets.</div>';
+  } else if(mbSubTab==="cashout"){
+    const eligible=MY_BETS.filter(b=>!cashedBets[b.id]);
+    if(!eligible.length)body=`<div class="empty-st" style="padding:30px 14px">Cash Out is available on selected events, markets, both pre-event and live.<br><br>A market eligible for Cash Out will have the <span class="co-icon-yellow" style="margin:0 3px">CO</span> icon.</div>`;
+    else body=eligible.map(b=>{const i=MY_BETS.indexOf(b);return renderBetCard(b,i);}).join("");
+  } else {
+    body=GRADED_BETS.map(b=>{
+      const isCO=b.result==="cashed";
+      const status=isCO?'<span class="bdg" style="background:#dbeafe;color:#1e40af"><span class="co-icon-red">CO</span> Cashed Out</span>':b.result==="won"?'<span class="bdg bg">Won</span>':'<span class="bdg br">Lost</span>';
+      return `<div class="bcv3">
+        <div class="bcv3-head"><span class="bcv3-team">${b.team}</span>${isCO?`<span class="co-amt-pill" style="background:#4a90e2"><span class="co-icon-red">CO</span> $${b.coAmt.toFixed(2)}</span>`:''}</div>
+        <div class="bcv3-meta">
+          <div class="bcv3-meta-row"><span>Ticket #</span><span>${b.id}</span></div>
+          <div class="bcv3-meta-row"><span>vs ${b.opp}</span><span>${b.sport} · ${b.league}</span></div>
+          <div class="bcv3-meta-row"><span>Graded</span><span>${b.graded}</span></div>
+        </div>
+        <div class="bcv3-status ${isCO?'cashed':'pending'}" style="${b.result==='won'?'background:#dcfce7;color:#065f46':b.result==='lost'?'background:#fee2e2;color:#991b1b':''}">
+          ${status}
+          <span>${isCO?`+$${b.coAmt.toFixed(2)}`:b.result==='won'?`+$${b.toWin.toFixed(2)}`:`-$${b.risk}`}</span>
+        </div>
+      </div>`;
+    }).join("");
+  }
+  return `<h2>My Bets</h2>${tabs}${body}`;
+}
+
+function renderHistoryPage(isMobile){
+  const all=[...GRADED_BETS,...Object.keys(cashedBets).map(id=>{const b=MY_BETS.find(x=>x.id===id);return{...b,result:'cashed',coAmt:cashedBets[id],graded:'Today'};})];
+  const rows=all.map(b=>{
+    const isCO=b.result==="cashed";
+    const status=isCO?'<span class="bdg" style="background:#dbeafe;color:#1e40af;font-size:10px"><span class="co-icon-red">CO</span> Cashed Out</span>':b.result==="won"?'<span class="bdg bg" style="font-size:10px">Won</span>':'<span class="bdg br" style="font-size:10px">Lost</span>';
+    const toReturn=isCO?`$${b.coAmt.toFixed(2)}`:b.result==="won"?`$${(b.risk+b.toWin).toFixed(2)}`:"&mdash;";
+    return `<tr><td><div style="color:var(--text);font-weight:500;font-size:11px">${b.team}${b.opp?' vs '+b.opp:''}</div><div style="font-size:9px;color:var(--text3);font-family:'DM Mono',monospace">${b.sport} · ${b.league}</div></td><td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3)">${b.graded||b.placed}</td><td style="font-family:'DM Mono',monospace;font-size:10px">$${b.risk}</td><td>${status}</td><td class="${isCO?'amt-p':''}" style="font-family:'DM Mono',monospace;font-size:10px">${toReturn}</td></tr>`;
+  }).join("");
+  return `<h2>Bet History</h2>
+    <div style="display:flex;gap:6px;margin-bottom:10px;align-items:center">
+      <select style="font-size:11px"><option>30 days</option><option>7 days</option></select>
+      <select style="font-size:11px"><option>All status</option><option>Cashed Out</option><option>Won</option><option>Lost</option></select>
+    </div>
+    <table class="ht" style="width:100%"><thead><tr><th>Bet</th><th>Date</th><th>Risk</th><th>Status</th><th>To Return</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function renderAccountPage(isMobile){
+  const txns=[];
+  GRADED_BETS.filter(b=>b.result==="cashed").forEach(b=>{
+    txns.push({id:b.id,date:b.graded,type:"Cashed Out",desc:`Wager Cashed Out · ${b.sport}`,amt:b.coAmt,credit:true});
+    txns.push({id:b.id+'-debit',date:b.placed,type:"Wager (Debit)",desc:`1 wager(s) placed`,amt:b.risk,credit:false});
+  });
+  Object.keys(cashedBets).forEach(id=>{
+    const b=MY_BETS.find(x=>x.id===id);if(!b)return;
+    txns.push({id,date:'Today',type:"Cashed Out",desc:`Wager Cashed Out · ${b.sport}`,amt:cashedBets[id],credit:true});
+    txns.push({id:id+'-debit',date:b.placed,type:"Wager (Debit)",desc:'1 wager(s) placed',amt:b.risk,credit:false});
+  });
+  const rows=txns.map(t=>{
+    const typeBdg=t.type==="Cashed Out"?'<span class="bdg" style="background:#dbeafe;color:#1e40af;font-size:9px"><span class="co-icon-red" style="margin-right:2px">CO</span> Cashed Out</span>':'<span class="bdg bgr" style="font-size:9px">Wager (Debit)</span>';
+    return `<tr><td style="font-family:'DM Mono',monospace;font-size:10px">${t.id}</td><td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3)">${t.date}</td><td>${typeBdg}</td><td style="font-size:11px;color:var(--text2)">${t.desc}</td><td class="${t.credit?'amt-p':'amt-n'}" style="font-family:'DM Mono',monospace;font-size:11px">${t.credit?'+':'-'}$${t.amt.toFixed(2)}</td></tr>`;
+  }).join("")||'<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text3)">No transactions yet. Cash out a bet from My Bets to see entries here.</td></tr>';
+  return `<h2>Account · Transactions</h2>
+    <div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:10px">
+      <div style="font-size:11px;color:var(--text3)">Available Balance</div>
+      <div style="font-size:18px;font-weight:700;color:var(--text);font-family:'DM Mono',monospace">$1,240.00</div>
+    </div>
+    <h3>Recent transactions</h3>
+    <table class="ht" style="width:100%"><thead><tr><th>ID</th><th>Date</th><th>Type</th><th>Description</th><th>Amount</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function buildSite(){renderSite();}
+
+/* REPORTS — SYNERGY & N-GAME LIABILITIES */
+const synergyState={
+  game:"New England Patriots vs Philadelphia Eagles",
+  selA:{name:"New England Patriots",american:-150},
+  selB:{name:"Philadelphia Eagles",american:130},
+  betsA:[
+    {id:23456,risk:50,coAmt:32,co:false},
+    {id:23457,risk:10,coAmt:8,co:false},
+    {id:23458,risk:20,coAmt:13,co:false},
+    {id:23459,risk:35,coAmt:22,co:false}
+  ],
+  betsB:[
+    {id:123456,risk:5,coAmt:9,co:false},
+    {id:123457,risk:30,coAmt:55,co:false},
+    {id:123458,risk:10,coAmt:18,co:false},
+    {id:123459,risk:25,coAmt:45,co:false}
+  ]
+};
+const ngameState={
+  game:"San Francisco 49ers vs Green Bay Packers",
+  selA:{name:"San Francisco",american:-200},
+  selB:{name:"Green Bay Packers",american:159},
+  betsA:[
+    {id:1,stake:50,coAmt:30,co:false},
+    {id:2,stake:25,coAmt:15,co:false},
+    {id:3,stake:33,coAmt:20,co:false}
+  ],
+  betsB:[
+    {id:1,stake:50,coAmt:100,co:false},
+    {id:2,stake:100,coAmt:180,co:false},
+    {id:3,stake:33,coAmt:65,co:false}
+  ]
+};
+function americanToDecimal(a){return a>0?(a/100)+1:(-100/a)+1;}
+function switchRep(n){document.querySelectorAll("#main-rep .snb").forEach((b,i)=>b.classList.toggle("active",["synergy","ngame","rules"][i]===n));document.querySelectorAll("#main-rep .sp").forEach(p=>p.classList.remove("active"));document.getElementById("rep-"+n).classList.add("active");}
+function buildReports(){buildSynergy();buildNGame();}
+
+/* SYNERGY: Profit/Risk/Payout/Volume/Count */
+function synergySideTotals(bets,decOdd,otherSideRiskTotal,useCO){
+  let totRisk=0,totPayout=0,totProfit=0,totVolume=0,count=0;
+  bets.forEach(b=>{
+    const isCO=useCO&&b.co;
+    const payout=isCO?b.coAmt:(b.risk*decOdd);
+    const profit=b.risk-payout;
+    const volume=Math.min(b.risk,payout-b.risk);
+    totRisk+=b.risk;totPayout+=payout;totVolume+=volume;count+=1;
+  });
+  // Total Profit (Synergy convention) = OtherSide_TotalRisk + ThisSide_TotalPayout (with CO substitutions)
+  // After cashout, also add the updated profits from cashed-out bets on the OTHER side
+  totProfit=otherSideRiskTotal+totPayout;
+  return{totRisk,totPayout,totProfit,totVolume,count};
+}
+function buildSynergy(){
+  const el=document.getElementById("synergy-content");if(!el)return;
+  const s=synergyState;
+  const dA=americanToDecimal(s.selA.american);
+  const dB=americanToDecimal(s.selB.american);
+  // Pre-cashout totals (no CO applied)
+  const aPre=synergySideTotals(s.betsA,dA,0,false);
+  const bPre=synergySideTotals(s.betsB,dB,0,false);
+  aPre.totProfit=bPre.totRisk+aPre.totPayout;
+  bPre.totProfit=aPre.totRisk+bPre.totPayout;
+  // After cashout
+  const aPost=synergySideTotals(s.betsA,dA,0,true);
+  const bPost=synergySideTotals(s.betsB,dB,0,true);
+  // Add cashed-out profit from opposite side: profit = risk - coAmt (= -volume gain)
+  const aCOProfitOnB=s.betsB.filter(b=>b.co).reduce((sum,b)=>sum+(b.risk-b.coAmt),0);
+  const bCOProfitOnA=s.betsA.filter(b=>b.co).reduce((sum,b)=>sum+(b.risk-b.coAmt),0);
+  aPost.totProfit=bPost.totRisk+aPost.totPayout+aCOProfitOnB;
+  bPost.totProfit=aPost.totRisk+bPost.totPayout+bCOProfitOnA;
+
+  const oddsCard=`<div class="card"><div class="ct">Game odds &mdash; ${s.game}</div>
+    <table class="tbl"><thead><tr><th>Selection</th><th style="width:90px">American</th><th style="width:90px">Decimal</th></tr></thead><tbody>
+    <tr style="background:#fffbe0"><td><strong>${s.selA.name}</strong></td><td style="font-family:'DM Mono',monospace">${s.selA.american>0?"+":""}${s.selA.american}</td><td style="font-family:'DM Mono',monospace">${dA.toFixed(4)}</td></tr>
+    <tr style="background:#ffe8d0"><td><strong>${s.selB.name}</strong></td><td style="font-family:'DM Mono',monospace">${s.selB.american>0?"+":""}${s.selB.american}</td><td style="font-family:'DM Mono',monospace">${dB.toFixed(4)}</td></tr>
+    </tbody></table></div>`;
+
+  function betsTable(label,bg,bets,decOdd,sideKey){
+    const rows=bets.map((b,i)=>{
+      const isCO=b.co;
+      const payout=isCO?b.coAmt:(b.risk*decOdd);
+      const profit=b.risk-payout;
+      const volume=Math.min(b.risk,payout-b.risk);
+      const cls=isCO?'style="color:var(--red);font-weight:600"':"";
+      return`<tr ${cls}><td style="text-align:center;font-family:'DM Mono',monospace">${b.id}</td>
+        <td style="text-align:center;font-family:'DM Mono',monospace">${profit.toFixed(2)}</td>
+        <td style="text-align:center;font-family:'DM Mono',monospace">${b.risk.toFixed(2)}</td>
+        <td style="text-align:center;font-family:'DM Mono',monospace">${payout.toFixed(2)}</td>
+        <td style="text-align:center;font-family:'DM Mono',monospace">${volume.toFixed(2)}</td>
+        <td style="text-align:center"><input type="number" value="${b.coAmt}" step="0.01" style="width:60px" oninput="synergyState.${sideKey}[${i}].coAmt=+this.value;buildSynergy()"></td>
+        <td style="text-align:center"><label class="tog"><input type="checkbox"${isCO?" checked":""} onchange="synergyState.${sideKey}[${i}].co=this.checked;buildSynergy()"><span class="tsl"></span></label></td></tr>`;
+    }).join("");
+    return`<div class="co-section" style="margin-bottom:10px">
+      <div class="co-section-hdr" style="background:${bg}">${label}</div>
+      <table class="co-table">
+        <thead><tr><th>Bet ID</th><th>Profit</th><th>Risk</th><th>Payout</th><th>Volume</th><th>CO amount</th><th>Cashed out</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table></div>`;
+  }
+
+  function totalsTable(title,a,b){
+    return`<div class="co-section" style="margin-bottom:10px">
+      <div class="co-section-hdr">${title}</div>
+      <table class="co-table">
+        <thead><tr><th>Selection</th><th>Profit</th><th>Risk</th><th>Payout</th><th>Volume</th><th>Count</th></tr></thead>
+        <tbody>
+          <tr style="background:#fffbe0"><td class="label">${s.selA.name}</td><td class="${a.totProfit>=0?'profit-pos':'profit-neg'}">${a.totProfit>=0?'+':''}${a.totProfit.toFixed(2)}</td><td>${a.totRisk.toFixed(2)}</td><td>${a.totPayout.toFixed(2)}</td><td class="${a.totVolume>=0?'profit-pos':'profit-neg'}">${a.totVolume.toFixed(2)}</td><td>${a.count}</td></tr>
+          <tr style="background:#ffe8d0"><td class="label">${s.selB.name}</td><td class="${b.totProfit>=0?'profit-pos':'profit-neg'}">${b.totProfit>=0?'+':''}${b.totProfit.toFixed(2)}</td><td>${b.totRisk.toFixed(2)}</td><td>${b.totPayout.toFixed(2)}</td><td class="${b.totVolume>=0?'profit-pos':'profit-neg'}">${b.totVolume.toFixed(2)}</td><td>${b.count}</td></tr>
+        </tbody>
+      </table></div>`;
+  }
+
+  el.innerHTML=oddsCard
+    +`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">`
+    +betsTable(s.selA.name+' &mdash; bets',"#d4a017",s.betsA,dA,"betsA")
+    +betsTable(s.selB.name+' &mdash; bets',"#c0682b",s.betsB,dB,"betsB")
+    +`</div>`
+    +totalsTable("Liabilities BEFORE cash out",aPre,bPre)
+    +totalsTable("Liabilities AFTER cash out",aPost,bPost)
+    +`<div class="card" style="font-size:11px;color:var(--text3);line-height:1.7"><strong style="color:var(--text2)">Formulas:</strong><br>Per bet: Payout = Risk &times; DecimalOdd &middot; Profit = Risk &minus; Payout &middot; Volume = MIN(Risk, Payout &minus; Risk)<br>Total Profit (selection X) = OtherSide_Total_Risk + ThisSide_Total_Payout + &Sigma;(Profit of cashed-out bets on opposite side)<br>After cashout: cashed-out bet&apos;s Payout is replaced by the cashout amount</div>`;
+}
+
+/* N-GAME: Bets/Stake/Liability */
+function ngameSideTotals(bets,decOdd){
+  let totStake=0,totReturn=0,count=0,totCO=0,totReturnNonCO=0;
+  bets.forEach(b=>{
+    totStake+=b.stake;
+    totReturn+=b.stake*decOdd;
+    count+=1;
+    if(b.co){totCO+=b.coAmt;}else{totReturnNonCO+=b.stake*decOdd;}
+  });
+  return{totStake,totReturn,count,totCO,totReturnNonCO};
+}
+function buildNGame(){
+  const el=document.getElementById("ngame-content");if(!el)return;
+  const s=ngameState;
+  const dA=americanToDecimal(s.selA.american);
+  const dB=americanToDecimal(s.selB.american);
+  const a=ngameSideTotals(s.betsA,dA);
+  const b=ngameSideTotals(s.betsB,dB);
+  // Pre-cashout liability per selection: Total_Return_X - (StakeA + StakeB)
+  const liabA_pre=Math.round(a.totReturn-(a.totStake+b.totStake));
+  const liabB_pre=Math.round(b.totReturn-(a.totStake+b.totStake));
+  // Post-cashout liability: SUM(all CO) + SUM(non-CO returns for this selection) - (StakeA + StakeB)
+  const totCOAll=a.totCO+b.totCO;
+  const liabA_post=Math.round(totCOAll+a.totReturnNonCO-(a.totStake+b.totStake));
+  const liabB_post=Math.round(totCOAll+b.totReturnNonCO-(a.totStake+b.totStake));
+
+  const oddsCard=`<div class="card"><div class="ct">Game odds &mdash; ${s.game}</div>
+    <table class="tbl"><thead><tr><th>Selection</th><th style="width:90px">American</th><th style="width:90px">Decimal</th></tr></thead><tbody>
+    <tr style="background:#fffbe0"><td><strong>${s.selA.name}</strong></td><td style="font-family:'DM Mono',monospace">${s.selA.american>0?"+":""}${s.selA.american}</td><td style="font-family:'DM Mono',monospace">${dA.toFixed(4)}</td></tr>
+    <tr style="background:#ffe8d0"><td><strong>${s.selB.name}</strong></td><td style="font-family:'DM Mono',monospace">${s.selB.american>0?"+":""}${s.selB.american}</td><td style="font-family:'DM Mono',monospace">${dB.toFixed(4)}</td></tr>
+    </tbody></table></div>`;
+
+  function nbetsTable(label,bg,bets,decOdd,sideKey){
+    const rows=bets.map((bb,i)=>{
+      const isCO=bb.co;
+      const ret=bb.stake*decOdd;
+      const liab=Math.round(ret-bb.stake);
+      const cls=isCO?'style="color:var(--red);font-weight:600"':"";
+      return`<tr ${cls}><td style="text-align:center;font-family:'DM Mono',monospace">${bb.id}</td>
+        <td style="text-align:center;font-family:'DM Mono',monospace">${bb.stake.toFixed(2)}</td>
+        <td style="text-align:center;font-family:'DM Mono',monospace">${ret.toFixed(2)}</td>
+        <td style="text-align:center;font-family:'DM Mono',monospace">${liab}</td>
+        <td style="text-align:center"><input type="number" value="${bb.coAmt}" step="0.01" style="width:60px" oninput="ngameState.${sideKey}[${i}].coAmt=+this.value;buildNGame()"></td>
+        <td style="text-align:center"><label class="tog"><input type="checkbox"${isCO?" checked":""} onchange="ngameState.${sideKey}[${i}].co=this.checked;buildNGame()"><span class="tsl"></span></label></td></tr>`;
+    }).join("");
+    return`<div class="co-section" style="margin-bottom:10px">
+      <div class="co-section-hdr" style="background:${bg}">${label}</div>
+      <table class="co-table">
+        <thead><tr><th>Bet ID</th><th>Stake</th><th>Return</th><th>Liability</th><th>CO amount</th><th>Cashed out</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table></div>`;
+  }
+
+  function ntotalsTable(title,liabA,liabB){
+    return`<div class="co-section" style="margin-bottom:10px">
+      <div class="co-section-hdr">${title}</div>
+      <table class="co-table">
+        <thead><tr><th>Selection</th><th>Odds</th><th>Bets</th><th>Stake</th><th>Liability</th></tr></thead>
+        <tbody>
+          <tr style="background:#fffbe0"><td class="label">${s.selA.name}</td><td>${s.selA.american>0?"+":""}${s.selA.american}</td><td>${a.count}</td><td>${a.totStake.toFixed(2)}</td><td class="${liabA>=0?'profit-pos':'profit-neg'}">${liabA>=0?'+':''}${liabA}</td></tr>
+          <tr style="background:#ffe8d0"><td class="label">${s.selB.name}</td><td>${s.selB.american>0?"+":""}${s.selB.american}</td><td>${b.count}</td><td>${b.totStake.toFixed(2)}</td><td class="${liabB>=0?'profit-pos':'profit-neg'}">${liabB>=0?'+':''}${liabB}</td></tr>
+        </tbody>
+      </table></div>`;
+  }
+
+  el.innerHTML=oddsCard
+    +`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">`
+    +nbetsTable(s.selA.name+' &mdash; bets',"#d4a017",s.betsA,dA,"betsA")
+    +nbetsTable(s.selB.name+' &mdash; bets',"#c0682b",s.betsB,dB,"betsB")
+    +`</div>`
+    +ntotalsTable("Liabilities BEFORE cash out",liabA_pre,liabB_pre)
+    +ntotalsTable("Liabilities AFTER cash out",liabA_post,liabB_post)
+    +`<div class="card" style="font-size:11px;color:var(--text3);line-height:1.7"><strong style="color:var(--text2)">Formulas:</strong><br>Per bet: Return = Stake &times; DecimalOdd &middot; Liability = ROUND(Return &minus; Stake, 0)<br>Pre-cashout liability (selection X) = ROUND(Total_Return_X &minus; (Stake_A + Stake_B), 0)<br>Post-cashout liability = ROUND(&Sigma;CO + &Sigma;Return_of_remaining_bets &minus; (Stake_A + Stake_B), 0)<br>The post-cashout liability is the SAME value on every selection.</div>`;
+}
+
+/* BET TICKER — Instant Action (pre-match) + Bet Ticker (live) */
+function switchTic(n){document.querySelectorAll("#main-tic .snb").forEach((b,i)=>b.classList.toggle("active",["pre","live"][i]===n));document.querySelectorAll("#main-tic .sp").forEach(p=>p.classList.remove("active"));document.getElementById("tic-"+n).classList.add("active");}
+
+const IA_ROWS=[
+  {time:"06:12:30",cust:"B1543492",name:"John Doe",ctry:"United States",limit:"#12 - 0.07% - s25000",risk:1.54,desc:"Desktop - FOOTBALL - SS130 Tampa Bay Buccaneers -130 for GAME",wt:"Straight",co:false},
+  {time:"06:13:18",cust:"B2189337",name:"Maria Lopez",ctry:"Argentina",limit:"#08 - 0.05% - s10000",risk:25.00,desc:"Mobile - SOCCER - World Cup Argentina vs Brazil Argentina ML +120",wt:"Straight",co:false},
+  {time:"06:15:13",cust:"B1543492",name:"John Doe",ctry:"United States",limit:"#12 - 0.07% - s25000",risk:1.54,desc:"Desktop - FOOTBALL - SS130 Tampa Bay Buccaneers -130 for GAME",wt:"Straight",co:false},
+  {time:"06:16:42",cust:"B7890231",name:"Carlos Ruiz",ctry:"Mexico",limit:"#15 - 0.10% - s50000",risk:50.00,desc:"Desktop - BASKETBALL - NBA Lakers -3.5 -110 for GAME",wt:"Parlay",co:false},
+  {time:"06:18:35",cust:"B1543492",name:"John Doe",ctry:"United States",limit:"#12 - 0.07% - s25000",risk:1.54,desc:"Cashed Out $1.90 with Odd -130 | Desktop - FOOTBALL - SS130 Tampa Bay Buccaneers -130 for GAME",wt:"Straight",co:true,coAmt:1.90,newOdd:"-130"},
+  {time:"06:19:05",cust:"B7890231",name:"Carlos Ruiz",ctry:"Mexico",limit:"#15 - 0.10% - s50000",risk:50.00,desc:"Cashed Out $42.30 with Odd -150 | Desktop - BASKETBALL - NBA Lakers -3.5 -110 for GAME",wt:"Parlay",co:true,coAmt:42.30,newOdd:"-150"},
+  {time:"06:20:11",cust:"B2189337",name:"Maria Lopez",ctry:"Argentina",limit:"#08 - 0.05% - s10000",risk:25.00,desc:"Cashed Out $32.50 with Odd +145 | Mobile - SOCCER - World Cup Argentina vs Brazil Argentina ML +120",wt:"Straight",co:true,coAmt:32.50,newOdd:"+145"},
+  {time:"06:21:42",cust:"B4521098",name:"Aleksei Petrov",ctry:"Russia",limit:"#10 - 0.08% - s30000",risk:75.00,desc:"Desktop - HOCKEY - NHL Rangers ML -180 for GAME",wt:"Straight",co:false}
+];
+
+const BT_ROWS=[
+  {status:"Bet Sold",time:"05:40:23 AM",cust:"B2661024",risk:4.00,toWin:3.64,coAmt:null,game:"WAS vs. PIT",mkt:"Moneyline",initOdd:"-110",newOdd:null,pl:-155.28},
+  {status:"Bet Cashed Out",time:"05:41:33 AM",cust:"B2661024",risk:4.00,toWin:null,coAmt:3.80,game:"WAS vs. PIT",mkt:"Moneyline",initOdd:"-110",newOdd:"-110",pl:-159.00},
+  {status:"Bet Sold",time:"05:45:25 AM",cust:"B2661024",risk:10.00,toWin:9.09,coAmt:null,game:"WAS vs. PIT",mkt:"Moneyline",initOdd:"-110",newOdd:null,pl:-159.28},
+  {status:"Bet Cashed Out",time:"05:46:30 AM",cust:"B2661024",risk:10.00,toWin:null,coAmt:10.09,game:"WAS vs. PIT",mkt:"Moneyline",initOdd:"-110",newOdd:"-150",pl:-169.00},
+  {status:"Bet Sold",time:"05:48:12 AM",cust:"B7890231",risk:50.00,toWin:45.45,coAmt:null,game:"NYK vs. BOS",mkt:"Spread",initOdd:"-110",newOdd:null,pl:-204.45},
+  {status:"Bet Cashed Out",time:"05:51:08 AM",cust:"B4521098",risk:75.00,toWin:null,coAmt:120.50,game:"DAL vs. PHI",mkt:"Moneyline",initOdd:"+150",newOdd:"+220",pl:-83.95},
+  {status:"Bet Cashed Out",time:"05:53:44 AM",cust:"B2189337",risk:25.00,toWin:null,coAmt:18.75,game:"ARG vs. BRA",mkt:"Moneyline",initOdd:"+120",newOdd:"-130",pl:-102.70}
+];
+
+function renderInstantAction(){
+  const tb=document.getElementById("ia-tbody");if(!tb)return;
+  tb.innerHTML=IA_ROWS.map(r=>`<tr class="${r.co?'cashout':''}"><td>${r.time}</td><td>${r.cust}</td><td>${r.name}</td><td>${r.ctry}</td><td style="color:#888">${r.limit}</td><td>$${r.risk.toFixed(2)}</td><td>${r.desc}</td><td>${r.wt}</td></tr>`).join("");
+}
+
+function renderBetTicker(){
+  const tb=document.getElementById("bt-tbody");if(!tb)return;
+  const bg=document.getElementById("bt-co-bg")?document.getElementById("bt-co-bg").value:"#3b82f6";
+  const fg=document.getElementById("bt-co-fg")?document.getElementById("bt-co-fg").value:"#ef4444";
+  tb.innerHTML=BT_ROWS.map(r=>{
+    const isCO=r.status==="Bet Cashed Out";
+    const isProfit=isCO && r.coAmt>r.risk;
+    const cls=isProfit?"cashout-profit":(isCO?"cashout":"");
+    const style=isProfit?`style="--co-bg:${bg};--co-fg:${fg}"`:"";
+    const statusCls=isCO?"status-cashed":"status-sold";
+    const amt=isCO?`<span style="color:#fbbf24">CashOut: ${r.coAmt.toFixed(2)}</span>`:`Risk: ${r.risk.toFixed(2)} <span style="color:#888">/ To Win: ${r.toWin.toFixed(2)}</span>`;
+    const odds=isCO?`${r.game.split(" ")[0]} ${r.initOdd}\\${r.newOdd}`:`${r.game.split(" ")[0]} ${r.initOdd}`;
+    const plCls=r.pl>=0?"amt-pos":"amt-neg";
+    return`<tr class="${cls}" ${style}><td class="${statusCls}">${r.status}</td><td>${r.time}</td><td>${r.cust}</td><td>${isCO?'Risk: '+r.risk.toFixed(2):''} ${amt}</td><td>${r.game}</td><td>${r.mkt}</td><td>${odds}</td><td class="${plCls}">Net P/L: $${r.pl.toFixed(2)}</td></tr>`;
+  }).join("");
+}
+
+function buildTickers(){renderInstantAction();renderBetTicker();}
+
+/* MASTER KILL-SWITCH */
+function toggleMasterKill(){
+  const on=document.getElementById("masterKill").checked;
+  document.getElementById("kill-state").textContent=on?"ON":"OFF";
+  document.getElementById("kill-state").style.color=on?"#16a34a":"#dc2626";
+  const ind=document.getElementById("kill-switch-indicator");
+  ind.style.display=on?"none":"inline";
+  ind.textContent="● KILL-SWITCH OFF";
+  ind.style.color="#dc2626";
+  // Audit log entry
+  auditEntries.unshift({ts:new Date().toLocaleString(),op:"E.MORENO",act:"Master kill-switch",tgt:"Platform-wide",chg:`${on?"OFF→ON":"ON→OFF"}`});
+  if(document.getElementById("audit-tbody"))renderAuditLog();
+}
+
+/* PUNTER DISABLE */
+let punterDisables=[
+  {id:"B1543492",name:"John Doe",reason:"Risk-flagged — arbitrage activity",setBy:"K.MARTIN",setAt:"2026-04-21 14:32",disabled:true},
+  {id:"B7890231",name:"Carlos Ruiz",reason:"Compliance hold pending KYC review",setBy:"L.NGUYEN",setAt:"2026-04-25 09:15",disabled:true},
+  {id:"B4521098",name:"Aleksei Petrov",reason:"VIP exception — group rule applies",setBy:"E.MORENO",setAt:"2026-04-26 11:48",disabled:false}
+];
+function renderPunterDisable(){
+  const tb=document.getElementById("punter-tbody");if(!tb)return;
+  tb.innerHTML=punterDisables.map((p,i)=>`<tr>
+    <td style="font-family:'DM Mono',monospace">${p.id}</td>
+    <td>${p.name}</td>
+    <td style="color:var(--text2);font-size:11px">${p.reason}</td>
+    <td style="font-family:'DM Mono',monospace;color:var(--text3);font-size:11px">${p.setBy}</td>
+    <td style="font-family:'DM Mono',monospace;color:var(--text3);font-size:11px">${p.setAt}</td>
+    <td style="text-align:center"><label class="tog"><input type="checkbox"${p.disabled?" checked":""} onchange="togglePunter(${i},this.checked)"><span class="tsl"></span></label></td>
+    <td style="text-align:center"><button class="btn btn-sm btn-danger" onclick="removePunter(${i})">×</button></td>
+  </tr>`).join("");
+}
+function togglePunter(i,on){
+  const p=punterDisables[i];const prev=p.disabled;p.disabled=on;
+  auditEntries.unshift({ts:new Date().toLocaleString(),op:"E.MORENO",act:"Per-punter disable",tgt:`${p.id} (${p.name})`,chg:`${prev?"Disabled":"Enabled"} → ${on?"Disabled":"Enabled"}`});
+}
+function removePunter(i){
+  const p=punterDisables[i];
+  auditEntries.unshift({ts:new Date().toLocaleString(),op:"E.MORENO",act:"Per-punter disable",tgt:`${p.id} (${p.name})`,chg:`Removed from disable list`});
+  punterDisables.splice(i,1);renderPunterDisable();
+}
+function addPunterDisable(){
+  const id=document.getElementById("punter-search").value.trim()||`B${Math.floor(Math.random()*9000000+1000000)}`;
+  const newP={id,name:"New Punter",reason:"Manually added",setBy:"E.MORENO",setAt:new Date().toLocaleString(),disabled:true};
+  punterDisables.unshift(newP);
+  auditEntries.unshift({ts:new Date().toLocaleString(),op:"E.MORENO",act:"Per-punter disable",tgt:`${id} (New Punter)`,chg:`— → Disabled`});
+  document.getElementById("punter-search").value="";
+  renderPunterDisable();
+}
+
+/* AUDIT LOG */
+let auditEntries=[
+  {ts:"2026-04-26 14:22",op:"K.MARTIN",act:"Hierarchical enable",tgt:"Soccer / EPL / Arsenal vs Chelsea / Spread",chg:"Enabled → Disabled"},
+  {ts:"2026-04-26 11:48",op:"E.MORENO",act:"Per-punter disable",tgt:"B4521098 (Aleksei Petrov)",chg:"— → Disabled"},
+  {ts:"2026-04-25 16:05",op:"L.NGUYEN",act:"VigRate template change",tgt:"Cashout MVP",chg:"Admin Fee 5% → 4%"},
+  {ts:"2026-04-25 09:15",op:"L.NGUYEN",act:"Per-punter disable",tgt:"B7890231 (Carlos Ruiz)",chg:"— → Disabled"},
+  {ts:"2026-04-22 18:30",op:"K.MARTIN",act:"Hierarchical enable",tgt:"Football / NFL / All",chg:"Disabled → Enabled"},
+  {ts:"2026-04-21 14:32",op:"K.MARTIN",act:"Per-punter disable",tgt:"B1543492 (John Doe)",chg:"— → Disabled"},
+  {ts:"2026-04-20 10:00",op:"E.MORENO",act:"Master kill-switch",tgt:"Platform-wide",chg:"OFF → ON (initial activation)"}
+];
+function renderAuditLog(){
+  const tb=document.getElementById("audit-tbody");if(!tb)return;
+  tb.innerHTML=auditEntries.map(e=>`<tr>
+    <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)">${e.ts}</td>
+    <td style="font-family:'DM Mono',monospace;font-size:11px">${e.op}</td>
+    <td>${e.act}</td>
+    <td style="color:var(--text2);font-size:11px">${e.tgt}</td>
+    <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text2)">${e.chg}</td>
+  </tr>`).join("");
+}
+
+initSettings();buildBOSports();buildBOTable();buildTplList();renderTplEditor();populateCalcTpl();renderAllOddsGrids();calcCO();populateCustDropdowns();buildSite();buildReports();buildTickers();renderPunterDisable();renderAuditLog();
+</script>
+</body>
+</html>
